@@ -171,24 +171,10 @@ function update(){
 
   // If finger detected, move head toward finger
   if(fingerX !== null && fingerY !== null){
-    const head = segments[0];
-    const dx = fingerX - head.x;
-    const dy = fingerY - head.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-
-    if(dist > 2){
-      // Move head toward fingertip
-      const speed = Math.min(dist, 6); // max speed 6px/frame
-      const nx = head.x + (dx/dist) * speed;
-      const ny = head.y + (dy/dist) * speed;
-      segments[0] = { x: nx, y: ny };
-    }
-    // If very close to finger, snap head to finger
-    if(dist < 4){
-      segments[0] = { x: fingerX, y: fingerY };
-    }
+    // HEAD = FINGERTIP DIRECTLY. Мор доимо дар нӯги чилик!
+    segments[0] = { x: fingerX, y: fingerY };
   }
-  // If no finger - snake stays still (segments don't move)
+  // If no finger - snake stays still
 
   // Update body segments to follow head
   for(let i = 1; i < segments.length; i++){
