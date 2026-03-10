@@ -29,40 +29,18 @@ body {
 
 .workspace { flex:1; position:relative; overflow:hidden; }
 
+/* Camera full background */
 #vid {
   position:absolute; inset:0; width:100%; height:100%;
-  object-fit:cover; transform:scaleX(-1); opacity:0.15; z-index:1;
-}
-#gc { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:3; }
-#pc { position:absolute; inset:0; pointer-events:none; z-index:6; }
-
-/* Fingertip cursor - mисли барномаи расм */
-#ftip {
-  position:absolute;
-  width:24px; height:24px; border-radius:50%;
-  background:rgba(0,255,136,0.9);
-  box-shadow:0 0 20px #00ff88, 0 0 40px rgba(0,255,136,0.5);
-  transform:translate(-50%,-50%);
-  pointer-events:none; z-index:10; display:none;
-}
-/* Trail effect */
-#ftip::after {
-  content:'';
-  position:absolute; inset:-6px; border-radius:50%;
-  border:2px solid rgba(0,255,136,0.4);
-  animation:ring 1s ease-out infinite;
-}
-@keyframes ring{0%{transform:scale(1);opacity:.8}100%{transform:scale(2);opacity:0}}
-
-/* Arrow показывает текущее направление */
-.dir-show {
-  position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
-  font-size:3rem; z-index:10; pointer-events:none;
-  text-shadow:0 0 20px #00ff88;
-  transition: all .1s;
-  opacity: 0.7;
+  object-fit:cover; transform:scaleX(-1); opacity:0.2; z-index:1;
 }
 
+/* Game canvas - NO GRID, smooth */
+#gc {
+  position:absolute; inset:0; width:100%; height:100%; z-index:3;
+}
+
+/* Overlays */
 .ov {
   position:absolute; inset:0; display:flex; flex-direction:column;
   align-items:center; justify-content:center;
@@ -71,21 +49,15 @@ body {
 }
 .ov.off { display:none; }
 .ov-title { font-size:2rem; font-weight:900; letter-spacing:5px; text-shadow:0 0 30px currentColor; }
-
-.guide-simple {
-  background:rgba(0,255,136,0.05);
-  border:1px solid rgba(0,255,136,0.15);
-  border-radius:14px; padding:22px 36px;
-  text-align:center; font-size:2rem; line-height:2.2;
+.guide {
+  background:rgba(0,255,136,0.05); border:1px solid rgba(0,255,136,0.15);
+  border-radius:14px; padding:20px 32px; text-align:center;
+  font-size:.75rem; color:rgba(0,255,136,.6); letter-spacing:1px; line-height:2.2;
 }
-.g-line { display:flex; align-items:center; justify-content:center; gap:16px; }
-.g-label { font-size:.65rem; color:rgba(0,255,136,.5); letter-spacing:1px; }
-
+.guide .big { font-size:2.5rem; margin-bottom:8px; }
 .btn {
-  padding:13px 48px; border:2px solid #00ff88;
-  background:transparent; color:#00ff88;
-  font-family:'Orbitron',monospace; font-size:.9rem;
-  font-weight:700; letter-spacing:3px; cursor:pointer; transition:.3s;
+  padding:13px 48px; border:2px solid #00ff88; background:transparent; color:#00ff88;
+  font-family:'Orbitron',monospace; font-size:.9rem; font-weight:700; letter-spacing:3px; cursor:pointer; transition:.3s;
 }
 .btn:hover { background:#00ff88; color:#060e08; box-shadow:0 0 30px #00ff88; }
 .final { font-size:1.4rem; color:#ffd60a; text-shadow:0 0 20px #ffd60a; }
@@ -96,9 +68,8 @@ body {
 <div class="header">
   <div class="logo">🐍 HAND SNAKE</div>
   <div class="stats">
-    <div class="stat"><div class="stat-l">ХОЛ</div><div class="stat-v" id="sS">000</div></div>
-    <div class="stat"><div class="stat-l">РЕКОРД</div><div class="stat-v" id="sH">000</div></div>
-    <div class="stat"><div class="stat-l">ДАРАҶА</div><div class="stat-v" id="sL">1</div></div>
+    <div class="stat"><div class="stat-l">ХОЛ</div><div class="stat-v" id="sS">0</div></div>
+    <div class="stat"><div class="stat-l">РЕКОРД</div><div class="stat-v" id="sH">0</div></div>
   </div>
   <div class="hdot"><div class="d" id="dot"></div><span id="dotTxt">КАМЕРА...</span></div>
 </div>
@@ -106,25 +77,18 @@ body {
 <div class="workspace">
   <video id="vid" autoplay playsinline muted></video>
   <canvas id="gc"></canvas>
-  <canvas id="pc"></canvas>
-  <div id="ftip"></div>
-  <div class="dir-show" id="dirShow"></div>
 
   <!-- START -->
   <div class="ov" id="ovS">
     <div class="ov-title" style="color:#00ff88">🐍 HAND SNAKE</div>
-    <div class="guide-simple">
-      <div class="g-line">☝️ <span style="font-size:1.4rem;color:rgba(0,255,136,.6)">→</span> 🐍</div>
-      <div class="g-label">ЧИЛИКРО ҲАРАКАТ ДИҲ — МОР ҲАМОН ТАРАФ МЕРАВАД</div>
-      <div style="margin-top:16px;display:flex;gap:24px;justify-content:center">
-        <span title="боло">☝️⬆️</span>
-        <span title="поён">☝️⬇️</span>
-        <span title="чап">☝️⬅️</span>
-        <span title="рост">☝️➡️</span>
-      </div>
+    <div class="guide">
+      <div class="big">☝️ = 🐍</div>
+      МОР ДАР НӮГ ЧИЛИК АСТ<br>
+      ЧИЛИК ҲАРАКАТ КАРД → МОР ҲАРАКАТ КАРД<br>
+      ЧИЛИК ИСТОД → МОР ИСТОД<br>
+      ЧИЛИК ТОБ ДОД → МОР ТОБ МЕХӮРАД
     </div>
     <button class="btn" onclick="startGame()">ОҒОЗ ▶</button>
-    <div style="font-size:.6rem;color:rgba(0,255,136,.3);letter-spacing:2px">ARROW KEYS ҲАМ КОР МЕКУНАД</div>
   </div>
 
   <!-- OVER -->
@@ -143,242 +107,364 @@ body {
 </div>
 
 <script>
-const CELL=20, COLS=28, ROWS=22;
-let hi=0;
-const gCanvas=document.getElementById('gc');
-const gx=gCanvas.getContext('2d');
-const pCanvas=document.getElementById('pc');
-const px2=pCanvas.getContext('2d');
+const canvas = document.getElementById('gc');
+const ctx = canvas.getContext('2d');
 
+let W, H;
 function resize(){
-  const ws=document.querySelector('.workspace');
-  const sc=Math.max(1,Math.min(~~(ws.clientWidth/(COLS*CELL)),~~(ws.clientHeight/(ROWS*CELL))));
-  gCanvas.width=COLS*CELL*sc; gCanvas.height=ROWS*CELL*sc; gCanvas.dataset.s=sc;
-  pCanvas.width=ws.clientWidth; pCanvas.height=ws.clientHeight;
+  const ws = document.querySelector('.workspace');
+  W = canvas.width = ws.clientWidth;
+  H = canvas.height = ws.clientHeight;
 }
-resize(); window.addEventListener('resize',resize);
+resize();
+window.addEventListener('resize', resize);
 
-let snake,dir,nextDir,food,score,level,speed,loop,alive;
+// ======= SNAKE STATE =======
+const SEG_DIST = 12;   // distance between each segment
+const SEG_RADIUS = 8;  // size of each segment
+const FOOD_RADIUS = 10;
+const INIT_LENGTH = 8;
 
-function init(){
-  snake=[{x:14,y:11},{x:13,y:11},{x:12,y:11},{x:11,y:11}];
-  dir={x:1,y:0}; nextDir={x:1,y:0};
-  score=0;level=1;speed=150;alive=true;
-  spawnFood();ui();draw();
+let segments = [];   // [{x,y}]
+let foods = [];
+let score = 0, hi = 0;
+let alive = false;
+let fingerX = null, fingerY = null; // current fingertip position
+let gameRunning = false;
+
+function initSnake(){
+  segments = [];
+  const startX = W / 2;
+  const startY = H / 2;
+  for(let i = 0; i < INIT_LENGTH; i++){
+    segments.push({ x: startX - i * SEG_DIST, y: startY });
+  }
+  score = 0;
+  alive = true;
+  fingerX = null;
+  fingerY = null;
+  spawnFoods();
+  ui();
 }
-function spawnFood(){
-  let p;
-  do{p={x:~~(Math.random()*COLS),y:~~(Math.random()*ROWS)};}
-  while(snake.some(s=>s.x===p.x&&s.y===p.y));
-  food=p;
-}
-function ui(){
-  document.getElementById('sS').textContent=String(score).padStart(3,'0');
-  document.getElementById('sH').textContent=String(hi).padStart(3,'0');
-  document.getElementById('sL').textContent=level;
+
+function spawnFoods(){
+  foods = [];
+  for(let i = 0; i < 5; i++) spawnOneFood();
 }
 
-function draw(){
-  const s=+gCanvas.dataset.s||1,W=gCanvas.width,H=gCanvas.height;
-  gx.fillStyle='rgba(6,14,8,0.9)'; gx.fillRect(0,0,W,H);
-  gx.strokeStyle='rgba(0,255,136,0.04)'; gx.lineWidth=1;
-  for(let x=0;x<COLS;x++)for(let y=0;y<ROWS;y++) gx.strokeRect(x*CELL*s,y*CELL*s,CELL*s,CELL*s);
-
-  const fx=food.x*CELL*s+CELL*s/2,fy=food.y*CELL*s+CELL*s/2;
-  const pl=0.65+0.35*Math.sin(Date.now()/190);
-  gx.save();
-  const rg=gx.createRadialGradient(fx,fy,0,fx,fy,CELL*s*pl);
-  rg.addColorStop(0,'rgba(255,45,85,.95)'); rg.addColorStop(1,'rgba(255,45,85,0)');
-  gx.fillStyle=rg; gx.beginPath(); gx.arc(fx,fy,CELL*s*pl,0,Math.PI*2); gx.fill();
-  gx.fillStyle='#ff2d55'; gx.shadowColor='#ff2d55'; gx.shadowBlur=16*s;
-  gx.beginPath(); gx.arc(fx,fy,CELL*s*.38,0,Math.PI*2); gx.fill();
-  gx.restore();
-
-  snake.forEach((seg,i)=>{
-    const x=seg.x*CELL*s,y=seg.y*CELL*s,sz=CELL*s,r=1-(i/snake.length)*.55;
-    gx.save();
-    if(i===0){gx.fillStyle='#00ff88';gx.shadowColor='#00ff88';gx.shadowBlur=18*s;}
-    else{const v=~~(75+r*145);gx.fillStyle=`rgb(0,${v},${~~(v*.3)})`;gx.shadowColor='#00ff88';gx.shadowBlur=6*s*r;}
-    const p=i===0?1:2; gx.fillRect(x+p,y+p,sz-p*2,sz-p*2);
-    if(i===0){
-      gx.fillStyle='#002a0e'; gx.shadowBlur=0;
-      const ew=sz*.15,eh=sz*.2;
-      if(dir.x===1){gx.fillRect(x+sz*.62,y+sz*.2,ew,eh);gx.fillRect(x+sz*.62,y+sz*.62,ew,eh);}
-      else if(dir.x===-1){gx.fillRect(x+sz*.23,y+sz*.2,ew,eh);gx.fillRect(x+sz*.23,y+sz*.62,ew,eh);}
-      else if(dir.y===-1){gx.fillRect(x+sz*.2,y+sz*.23,eh,ew);gx.fillRect(x+sz*.62,y+sz*.23,eh,ew);}
-      else{gx.fillRect(x+sz*.2,y+sz*.62,eh,ew);gx.fillRect(x+sz*.62,y+sz*.62,eh,ew);}
-    }
-    gx.restore();
+function spawnOneFood(){
+  foods.push({
+    x: 40 + Math.random() * (W - 80),
+    y: 40 + Math.random() * (H - 80),
+    pulse: Math.random() * Math.PI * 2
   });
 }
 
-function step(){
-  if(!alive)return;
-  dir={...nextDir};
-  const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
-  if(h.x<0||h.x>=COLS||h.y<0||h.y>=ROWS||snake.some(s=>s.x===h.x&&s.y===h.y)){over();return;}
-  snake.unshift(h);
-  if(h.x===food.x&&h.y===food.y){
-    score+=10*level; boom(food.x,food.y); spawnFood();
-    if(score>=level*100){level++;speed=Math.max(65,speed-15);clearInterval(loop);loop=setInterval(step,speed);}
-    ui();
-  } else snake.pop();
-  draw();
+function ui(){
+  document.getElementById('sS').textContent = score;
+  document.getElementById('sH').textContent = hi;
 }
 
-function over(){
-  alive=false; clearInterval(loop);
-  const rec=score>hi; if(rec)hi=score; ui();
-  document.getElementById('fS').textContent='ХОЛ: '+score;
-  document.getElementById('nR').style.display=rec?'block':'none';
+// ======= UPDATE =======
+function update(){
+  if(!alive || !gameRunning) return;
+
+  // If finger detected, move head toward finger
+  if(fingerX !== null && fingerY !== null){
+    const head = segments[0];
+    const dx = fingerX - head.x;
+    const dy = fingerY - head.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+
+    if(dist > 2){
+      // Move head toward fingertip
+      const speed = Math.min(dist, 6); // max speed 6px/frame
+      const nx = head.x + (dx/dist) * speed;
+      const ny = head.y + (dy/dist) * speed;
+      segments[0] = { x: nx, y: ny };
+    }
+    // If very close to finger, snap head to finger
+    if(dist < 4){
+      segments[0] = { x: fingerX, y: fingerY };
+    }
+  }
+  // If no finger - snake stays still (segments don't move)
+
+  // Update body segments to follow head
+  for(let i = 1; i < segments.length; i++){
+    const prev = segments[i-1];
+    const curr = segments[i];
+    const dx = prev.x - curr.x;
+    const dy = prev.y - curr.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if(dist > SEG_DIST){
+      const ratio = (dist - SEG_DIST) / dist;
+      segments[i] = {
+        x: curr.x + dx * ratio,
+        y: curr.y + dy * ratio
+      };
+    }
+  }
+
+  // Check wall collision
+  const head = segments[0];
+  if(head.x < 0 || head.x > W || head.y < 0 || head.y > H){
+    gameOver();
+    return;
+  }
+
+  // Check self collision (skip first 10 segments)
+  for(let i = 10; i < segments.length; i++){
+    const s = segments[i];
+    const dx = head.x - s.x;
+    const dy = head.y - s.y;
+    if(Math.sqrt(dx*dx + dy*dy) < SEG_RADIUS * 1.5){
+      gameOver();
+      return;
+    }
+  }
+
+  // Check food
+  for(let i = foods.length - 1; i >= 0; i--){
+    const f = foods[i];
+    const dx = head.x - f.x;
+    const dy = head.y - f.y;
+    if(Math.sqrt(dx*dx + dy*dy) < SEG_RADIUS + FOOD_RADIUS){
+      // Eat!
+      score += 10;
+      if(score > hi) hi = score;
+      ui();
+      foods.splice(i, 1);
+      spawnOneFood();
+      // Grow snake - add segments at tail
+      for(let g = 0; g < 5; g++){
+        const tail = segments[segments.length-1];
+        segments.push({...tail});
+      }
+    }
+  }
+}
+
+// ======= DRAW =======
+function draw(){
+  ctx.clearRect(0, 0, W, H);
+
+  if(!gameRunning) return;
+
+  // Draw food
+  foods.forEach(f => {
+    f.pulse += 0.05;
+    const r = FOOD_RADIUS * (0.8 + 0.2 * Math.sin(f.pulse));
+    ctx.save();
+    const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, r * 2.5);
+    grad.addColorStop(0, 'rgba(255,45,85,0.9)');
+    grad.addColorStop(1, 'rgba(255,45,85,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(f.x, f.y, r * 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ff2d55';
+    ctx.shadowColor = '#ff2d55'; ctx.shadowBlur = 15;
+    ctx.beginPath(); ctx.arc(f.x, f.y, r, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  });
+
+  // Draw snake body
+  if(segments.length < 2) return;
+
+  // Draw as smooth path
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // Body glow
+  for(let pass = 0; pass < 2; pass++){
+    ctx.beginPath();
+    ctx.moveTo(segments[0].x, segments[0].y);
+    for(let i = 1; i < segments.length; i++){
+      // Smooth curve through segments
+      if(i < segments.length - 1){
+        const mx = (segments[i].x + segments[i+1].x) / 2;
+        const my = (segments[i].y + segments[i+1].y) / 2;
+        ctx.quadraticCurveTo(segments[i].x, segments[i].y, mx, my);
+      } else {
+        ctx.lineTo(segments[i].x, segments[i].y);
+      }
+    }
+
+    if(pass === 0){
+      // Glow pass
+      ctx.strokeStyle = 'rgba(0,255,136,0.2)';
+      ctx.lineWidth = SEG_RADIUS * 2 + 6;
+      ctx.shadowColor = '#00ff88';
+      ctx.shadowBlur = 20;
+    } else {
+      // Main body
+      const grad = ctx.createLinearGradient(
+        segments[0].x, segments[0].y,
+        segments[segments.length-1].x, segments[segments.length-1].y
+      );
+      grad.addColorStop(0, '#00ff88');
+      grad.addColorStop(1, '#004422');
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = SEG_RADIUS * 2;
+      ctx.shadowColor = '#00ff88';
+      ctx.shadowBlur = 8;
+    }
+    ctx.stroke();
+  }
+
+  // Draw head (circle)
+  const head = segments[0];
+  ctx.beginPath();
+  ctx.arc(head.x, head.y, SEG_RADIUS + 2, 0, Math.PI*2);
+  ctx.fillStyle = '#00ff88';
+  ctx.shadowColor = '#00ff88';
+  ctx.shadowBlur = 20;
+  ctx.fill();
+
+  // Eyes on head
+  if(segments.length > 1){
+    const dx = segments[0].x - segments[1].x;
+    const dy = segments[0].y - segments[1].y;
+    const angle = Math.atan2(dy, dx);
+    const eyeR = SEG_RADIUS * 0.35;
+    const eyeDist = SEG_RADIUS * 0.5;
+    const ex1 = head.x + Math.cos(angle + 0.7) * eyeDist;
+    const ey1 = head.y + Math.sin(angle + 0.7) * eyeDist;
+    const ex2 = head.x + Math.cos(angle - 0.7) * eyeDist;
+    const ey2 = head.y + Math.sin(angle - 0.7) * eyeDist;
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#001a08';
+    ctx.beginPath(); ctx.arc(ex1, ey1, eyeR, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(ex2, ey2, eyeR, 0, Math.PI*2); ctx.fill();
+    // Pupils (white dot)
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(ex1 + Math.cos(angle)*1, ey1 + Math.sin(angle)*1, eyeR*0.4, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(ex2 + Math.cos(angle)*1, ey2 + Math.sin(angle)*1, eyeR*0.4, 0, Math.PI*2); ctx.fill();
+  }
+
+  // Fingertip indicator ring
+  if(fingerX !== null){
+    ctx.beginPath();
+    ctx.arc(fingerX, fingerY, 14, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(0,255,136,0.5)';
+    ctx.lineWidth = 2;
+    ctx.shadowColor = '#00ff88';
+    ctx.shadowBlur = 10;
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  ctx.restore();
+}
+
+function gameOver(){
+  alive = false;
+  gameRunning = false;
+  if(score > hi) hi = score;
+  ui();
+  document.getElementById('fS').textContent = 'ХОЛ: ' + score;
+  document.getElementById('nR').style.display = score >= hi && score > 0 ? 'block' : 'none';
   document.getElementById('ovO').classList.remove('off');
 }
 
 function startGame(){
   document.getElementById('ovS').classList.add('off');
   document.getElementById('ovO').classList.add('off');
-  clearInterval(loop); init();
-  loop=setInterval(step,speed);
+  gameRunning = true;
+  initSnake();
 }
 
-const KM={ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0},
-          w:{x:0,y:-1},s:{x:0,y:1},a:{x:-1,y:0},d:{x:1,y:0}};
-document.addEventListener('keydown',e=>{const d=KM[e.key];if(!d)return;applyDir(d);e.preventDefault();});
-
-const dirArrows={'-10':'⬆','01':'⬇','-10r':'⬆','10':'➡','-1_0':'⬅'};
-function applyDir(d){
-  if(!alive)return;
-  if(d.x===-dir.x&&dir.x!==0)return;
-  if(d.y===-dir.y&&dir.y!==0)return;
-  nextDir=d;
-  const em=d.x===1?'➡':d.x===-1?'⬅':d.y===-1?'⬆':'⬇';
-  document.getElementById('dirShow').textContent=em;
-}
-
-// Particles
-let parts=[];
-function boom(bx,by){
-  const ws=document.querySelector('.workspace').getBoundingClientRect();
-  const s=+gCanvas.dataset.s||1;
-  const ox=(ws.width-gCanvas.width)/2,oy=(ws.height-gCanvas.height)/2;
-  const cx=ox+bx*CELL*s+CELL*s/2,cy=oy+by*CELL*s+CELL*s/2;
-  for(let i=0;i<16;i++){
-    const a=(Math.PI*2/16)*i,sp=2+Math.random()*5;
-    parts.push({x:cx,y:cy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1,c:i%2?'#00ff88':'#ffd60a',sz:3+Math.random()*4});
+// ======= GAME LOOP =======
+let lastTime = 0;
+function gameLoop(ts){
+  const dt = ts - lastTime;
+  lastTime = ts;
+  if(dt < 100){ // skip big gaps
+    update();
+    draw();
   }
+  requestAnimationFrame(gameLoop);
 }
-(function animP(){
-  px2.clearRect(0,0,pCanvas.width,pCanvas.height);
-  parts=parts.filter(p=>p.life>0);
-  parts.forEach(p=>{
-    p.x+=p.vx;p.y+=p.vy;p.vy+=.1;p.life-=.03;
-    px2.save();px2.globalAlpha=p.life;px2.fillStyle=p.c;px2.shadowColor=p.c;px2.shadowBlur=10;
-    px2.beginPath();px2.arc(p.x,p.y,p.sz*p.life,0,Math.PI*2);px2.fill();px2.restore();
-  });
-  requestAnimationFrame(animP);
-})();
+requestAnimationFrame(gameLoop);
 
-// ======= HAND TRACKING =======
-// ПРИНСИП: Track MOVEMENT of fingertip — мисли барномаи расм
-// Позицияи қаблӣ vs позицияи ҳозира = вектори ҳаракат = самти мор
-// Агар чилик ба тарафи рост рафт → мор рост меравад
-
-let prevX = null, prevY = null;
-const MOVE_THRESHOLD = 0.012; // чиликро камаш ин қадар ҳаракат кунад
-
-function processMovement(nx, ny, screenX, screenY){
-  const ftip = document.getElementById('ftip');
-  ftip.style.display = 'block';
-  ftip.style.left = screenX + 'px';
-  ftip.style.top  = screenY + 'px';
-
-  if(prevX !== null){
-    const dx = nx - prevX;  // чилик ба рост рафт = мусбат
-    const dy = ny - prevY;  // чилик поён рафт = мусбат
-    const adx = Math.abs(dx);
-    const ady = Math.abs(dy);
-
-    if(adx > MOVE_THRESHOLD || ady > MOVE_THRESHOLD){
-      let d;
-      if(adx > ady){
-        // Горизонтал ҳаракат
-        d = dx > 0 ? {x:1,y:0} : {x:-1,y:0};
-      } else {
-        // Вертикал ҳаракат
-        d = dy > 0 ? {x:0,y:1} : {x:0,y:-1};
-      }
-      applyDir(d);
-    }
-  }
-
-  prevX = nx;
-  prevY = ny;
-}
-
+// ======= MEDIAPIPE =======
 async function initCam(){
   try{
-    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480}});
-    document.getElementById('vid').srcObject=stream;
+    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480}});
+    document.getElementById('vid').srcObject = stream;
     await document.getElementById('vid').play();
     loadMP();
   }catch(e){
-    document.getElementById('dotTxt').textContent='КЛАВИАТУРА';
+    document.getElementById('dotTxt').textContent = 'КАМЕРА ЙЎҚ';
     document.getElementById('ovL').classList.add('off');
     document.getElementById('ovS').classList.remove('off');
   }
 }
 
 function loadMP(){
-  const s1=document.createElement('script');
-  s1.src='https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
-  s1.crossOrigin='anonymous';
-  s1.onload=()=>{
-    const s2=document.createElement('script');
-    s2.src='https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
-    s2.crossOrigin='anonymous';
-    s2.onload=setupMP; s2.onerror=mpFail;
+  const s1 = document.createElement('script');
+  s1.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
+  s1.crossOrigin = 'anonymous';
+  s1.onload = () => {
+    const s2 = document.createElement('script');
+    s2.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
+    s2.crossOrigin = 'anonymous';
+    s2.onload = setupMP;
+    s2.onerror = mpFail;
     document.head.appendChild(s2);
   };
-  s1.onerror=mpFail; document.head.appendChild(s1);
+  s1.onerror = mpFail;
+  document.head.appendChild(s1);
 }
+
 function mpFail(){
-  document.getElementById('dotTxt').textContent='КЛАВИАТУРА';
+  document.getElementById('dotTxt').textContent = 'КАМЕРА ЙЎҚ';
   document.getElementById('ovL').classList.add('off');
   document.getElementById('ovS').classList.remove('off');
 }
 
 function setupMP(){
-  const vid=document.getElementById('vid');
-  const hands=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
-  hands.setOptions({maxNumHands:1,modelComplexity:0,minDetectionConfidence:0.6,minTrackingConfidence:0.6});
+  const vid = document.getElementById('vid');
+  const hands = new Hands({locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
+  hands.setOptions({
+    maxNumHands:1,
+    modelComplexity:0,
+    minDetectionConfidence:0.65,
+    minTrackingConfidence:0.65
+  });
 
-  hands.onResults(res=>{
-    const ws=document.querySelector('.workspace').getBoundingClientRect();
-    if(res.multiHandLandmarks && res.multiHandLandmarks.length>0){
-      document.getElementById('dot').className='d on';
-      document.getElementById('dotTxt').textContent='ДАСТ ✓';
-      const lm=res.multiHandLandmarks[0];
-      // Landmark 8 = index fingertip, mirror X
+  hands.onResults(res => {
+    if(res.multiHandLandmarks && res.multiHandLandmarks.length > 0){
+      document.getElementById('dot').className = 'd on';
+      document.getElementById('dotTxt').textContent = 'ДАСТ ✓';
+
+      const lm = res.multiHandLandmarks[0];
+      // Index fingertip = landmark 8, mirror X
       const nx = 1 - lm[8].x;
       const ny = lm[8].y;
-      const sx = nx * ws.width;
-      const sy = ny * ws.height;
-      processMovement(nx, ny, sx, sy);
+
+      // Convert to screen coords
+      fingerX = nx * W;
+      fingerY = ny * H;
     } else {
-      document.getElementById('dot').className='d';
-      document.getElementById('dotTxt').textContent='ЧИЛИКРО НИШ ОН ДИҲ';
-      document.getElementById('ftip').style.display='none';
-      prevX=null; prevY=null;
+      document.getElementById('dot').className = 'd';
+      document.getElementById('dotTxt').textContent = 'ЧИЛИКРО НИШ ОН ДИҲ';
+      fingerX = null;
+      fingerY = null;
     }
   });
 
-  const cam=new Camera(vid,{onFrame:async()=>{await hands.send({image:vid});},width:640,height:480});
+  const cam = new Camera(vid, {
+    onFrame: async () => { await hands.send({image: vid}); },
+    width:640, height:480
+  });
   cam.start();
+
   document.getElementById('ovL').classList.add('off');
   document.getElementById('ovS').classList.remove('off');
 }
 
-window.addEventListener('load',()=>setTimeout(initCam,500));
+window.addEventListener('load', () => setTimeout(initCam, 500));
 </script>
 </body>
 </html>
