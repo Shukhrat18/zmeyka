@@ -8,18 +8,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
-  background:#060e08;
-  color:#00ff88;
+  background:#060e08; color:#00ff88;
   font-family:'Orbitron',monospace;
   height:100vh; overflow:hidden;
   display:flex; flex-direction:column;
 }
 .header {
   display:flex; align-items:center; justify-content:space-between;
-  padding:10px 20px;
-  background:rgba(0,0,0,0.6);
-  border-bottom:1px solid rgba(0,255,136,0.15);
-  flex-shrink:0;
+  padding:10px 20px; background:rgba(0,0,0,0.6);
+  border-bottom:1px solid rgba(0,255,136,0.15); flex-shrink:0;
 }
 .logo { font-size:1.1rem; font-weight:900; letter-spacing:4px; text-shadow:0 0 15px #00ff88; }
 .stats { display:flex; gap:28px; }
@@ -32,92 +29,57 @@ body {
 
 .workspace { flex:1; position:relative; overflow:hidden; }
 
-/* CAMERA FULL BACKGROUND - translucent, so user sees their hand */
 #vid {
-  position:absolute; inset:0;
-  width:100%; height:100%;
-  object-fit:cover;
-  transform:scaleX(-1);
-  opacity:0.18;
-  z-index:1;
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; transform:scaleX(-1); opacity:0.15; z-index:1;
 }
-
 #gc { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:3; }
 #pc { position:absolute; inset:0; pointer-events:none; z-index:6; }
 
-/* Fingertip cursor - shown on screen */
+/* Fingertip cursor - mисли барномаи расм */
 #ftip {
   position:absolute;
-  width:22px; height:22px;
-  border-radius:50%;
+  width:24px; height:24px; border-radius:50%;
   background:rgba(0,255,136,0.9);
-  box-shadow:0 0 20px #00ff88, 0 0 40px #00ff88;
+  box-shadow:0 0 20px #00ff88, 0 0 40px rgba(0,255,136,0.5);
   transform:translate(-50%,-50%);
-  pointer-events:none;
-  z-index:10;
-  display:none;
-  transition: left .05s linear, top .05s linear;
+  pointer-events:none; z-index:10; display:none;
+}
+/* Trail effect */
+#ftip::after {
+  content:'';
+  position:absolute; inset:-6px; border-radius:50%;
+  border:2px solid rgba(0,255,136,0.4);
+  animation:ring 1s ease-out infinite;
+}
+@keyframes ring{0%{transform:scale(1);opacity:.8}100%{transform:scale(2);opacity:0}}
+
+/* Arrow показывает текущее направление */
+.dir-show {
+  position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+  font-size:3rem; z-index:10; pointer-events:none;
+  text-shadow:0 0 20px #00ff88;
+  transition: all .1s;
+  opacity: 0.7;
 }
 
-/* Zone dividers - cross lines on screen */
-#zones {
-  position:absolute; inset:0;
-  pointer-events:none; z-index:2;
-}
-
-/* Direction arrows - big, center screen */
-.arrows {
-  position:absolute; top:50%; left:50%;
-  transform:translate(-50%,-50%);
-  display:grid;
-  grid-template-areas:". u ." "l . r" ". d .";
-  grid-template-columns:60px 60px 60px;
-  grid-template-rows:60px 60px 60px;
-  gap:4px; z-index:4;
-  pointer-events:none;
-}
-.arr {
-  display:flex; align-items:center; justify-content:center;
-  font-size:1.8rem;
-  border:1px solid rgba(0,255,136,0.1);
-  border-radius:10px;
-  background:rgba(0,255,136,0.03);
-  transition:all .12s;
-  color:rgba(0,255,136,0.25);
-}
-.arr.lit {
-  background:rgba(0,255,136,0.25);
-  border-color:#00ff88;
-  box-shadow:0 0 20px rgba(0,255,136,0.5);
-  transform:scale(1.25);
-  color:#00ff88;
-}
-#aU{grid-area:u} #aD{grid-area:d} #aL{grid-area:l} #aR{grid-area:r}
-
-/* Overlay screens */
 .ov {
-  position:absolute; inset:0;
-  display:flex; flex-direction:column;
+  position:absolute; inset:0; display:flex; flex-direction:column;
   align-items:center; justify-content:center;
-  background:rgba(6,14,8,0.93);
-  z-index:50; gap:18px;
+  background:rgba(6,14,8,0.93); z-index:50; gap:18px;
   backdrop-filter:blur(5px);
 }
 .ov.off { display:none; }
 .ov-title { font-size:2rem; font-weight:900; letter-spacing:5px; text-shadow:0 0 30px currentColor; }
 
-.guide {
-  display:flex; flex-direction:column; gap:10px; align-items:center;
-  background:rgba(0,255,136,0.04);
+.guide-simple {
+  background:rgba(0,255,136,0.05);
   border:1px solid rgba(0,255,136,0.15);
-  border-radius:14px; padding:20px 30px;
+  border-radius:14px; padding:22px 36px;
+  text-align:center; font-size:2rem; line-height:2.2;
 }
-.guide-row { display:flex; align-items:center; gap:14px; font-size:1rem; }
-.guide-em { font-size:1.6rem; }
-.guide-arr { font-size:1.4rem; color:rgba(0,255,136,.4); }
-.guide-txt { font-size:.7rem; color:rgba(0,255,136,.6); letter-spacing:1px; }
-
-.ov-sub { font-size:.75rem; color:rgba(0,255,136,.45); letter-spacing:1px; text-align:center; line-height:2; }
+.g-line { display:flex; align-items:center; justify-content:center; gap:16px; }
+.g-label { font-size:.65rem; color:rgba(0,255,136,.5); letter-spacing:1px; }
 
 .btn {
   padding:13px 48px; border:2px solid #00ff88;
@@ -142,66 +104,30 @@ body {
 </div>
 
 <div class="workspace">
-  <!-- Camera as background -->
   <video id="vid" autoplay playsinline muted></video>
-
-  <!-- Zone lines -->
-  <canvas id="zones"></canvas>
-
-  <!-- Game -->
   <canvas id="gc"></canvas>
   <canvas id="pc"></canvas>
-
-  <!-- Fingertip dot -->
   <div id="ftip"></div>
-
-  <!-- Direction arrows center -->
-  <div class="arrows">
-    <div class="arr" id="aU">↑</div>
-    <div class="arr" id="aL">←</div>
-    <div class="arr" id="aR">→</div>
-    <div class="arr" id="aD">↓</div>
-  </div>
+  <div class="dir-show" id="dirShow"></div>
 
   <!-- START -->
   <div class="ov" id="ovS">
-    <div class="ov-title" style="color:#00ff88">HAND SNAKE</div>
-    <div class="guide">
-      <div class="guide-row">
-        <span class="guide-em">☝️</span>
-        <span class="guide-arr">⬆ БОЛО</span>
-        <span class="guide-arr">→</span>
-        <span class="guide-em">🐍</span>
-        <span class="guide-txt">МОР БОЛ МЕРАВАД</span>
-      </div>
-      <div class="guide-row">
-        <span class="guide-em">☝️</span>
-        <span class="guide-arr">⬇ ПОЁН</span>
-        <span class="guide-arr">→</span>
-        <span class="guide-em">🐍</span>
-        <span class="guide-txt">МОР ПОЁН МЕРАВАД</span>
-      </div>
-      <div class="guide-row">
-        <span class="guide-em">☝️</span>
-        <span class="guide-arr">⬅ ЧАП</span>
-        <span class="guide-arr">→</span>
-        <span class="guide-em">🐍</span>
-        <span class="guide-txt">МОР ЧАП МЕРАВАД</span>
-      </div>
-      <div class="guide-row">
-        <span class="guide-em">☝️</span>
-        <span class="guide-arr">➡ РОСТ</span>
-        <span class="guide-arr">→</span>
-        <span class="guide-em">🐍</span>
-        <span class="guide-txt">МОР РОСТ МЕРАВАД</span>
+    <div class="ov-title" style="color:#00ff88">🐍 HAND SNAKE</div>
+    <div class="guide-simple">
+      <div class="g-line">☝️ <span style="font-size:1.4rem;color:rgba(0,255,136,.6)">→</span> 🐍</div>
+      <div class="g-label">ЧИЛИКРО ҲАРАКАТ ДИҲ — МОР ҲАМОН ТАРАФ МЕРАВАД</div>
+      <div style="margin-top:16px;display:flex;gap:24px;justify-content:center">
+        <span title="боло">☝️⬆️</span>
+        <span title="поён">☝️⬇️</span>
+        <span title="чап">☝️⬅️</span>
+        <span title="рост">☝️➡️</span>
       </div>
     </div>
-    <div class="ov-sub">Чиликро ба тарафе мебаред — мор ба ҳамон тараф меравад<br>Мисли барномаи расм!</div>
     <button class="btn" onclick="startGame()">ОҒОЗ ▶</button>
     <div style="font-size:.6rem;color:rgba(0,255,136,.3);letter-spacing:2px">ARROW KEYS ҲАМ КОР МЕКУНАД</div>
   </div>
 
-  <!-- GAME OVER -->
+  <!-- OVER -->
   <div class="ov off" id="ovO">
     <div class="ov-title" style="color:#ff2d55">ТАМОМ!</div>
     <div class="final" id="fS">ХОЛ: 0</div>
@@ -212,61 +138,32 @@ body {
   <!-- LOADING -->
   <div class="ov" id="ovL">
     <div class="ov-title" style="color:#00e5ff;font-size:1.3rem">БОРИШ...</div>
-    <div class="ov-sub">Камера ва AI бор мешавад...</div>
+    <div style="font-size:.7rem;color:rgba(0,229,255,.5)">Лаҳзае сабр кунед...</div>
   </div>
 </div>
 
 <script>
-// ======= GAME SETUP =======
 const CELL=20, COLS=28, ROWS=22;
 let hi=0;
 const gCanvas=document.getElementById('gc');
 const gx=gCanvas.getContext('2d');
 const pCanvas=document.getElementById('pc');
-const px=pCanvas.getContext('2d');
-const zCanvas=document.getElementById('zones');
-const zx=zCanvas.getContext('2d');
+const px2=pCanvas.getContext('2d');
 
 function resize(){
   const ws=document.querySelector('.workspace');
-  const W=ws.clientWidth, H=ws.clientHeight;
-  const sc=Math.max(1,Math.min(~~(W/(COLS*CELL)),~~(H/(ROWS*CELL))));
+  const sc=Math.max(1,Math.min(~~(ws.clientWidth/(COLS*CELL)),~~(ws.clientHeight/(ROWS*CELL))));
   gCanvas.width=COLS*CELL*sc; gCanvas.height=ROWS*CELL*sc; gCanvas.dataset.s=sc;
-  pCanvas.width=W; pCanvas.height=H;
-  zCanvas.width=W; zCanvas.height=H;
-  drawZones();
+  pCanvas.width=ws.clientWidth; pCanvas.height=ws.clientHeight;
 }
 resize(); window.addEventListener('resize',resize);
 
-function drawZones(){
-  const W=zCanvas.width, H=zCanvas.height;
-  zx.clearRect(0,0,W,H);
-  zx.strokeStyle='rgba(0,255,136,0.08)';
-  zx.lineWidth=1; zx.setLineDash([6,6]);
-  // Horizontal center
-  zx.beginPath(); zx.moveTo(0,H/2); zx.lineTo(W,H/2); zx.stroke();
-  // Vertical center
-  zx.beginPath(); zx.moveTo(W/2,0); zx.lineTo(W/2,H); zx.stroke();
-  zx.setLineDash([]);
-  // Zone labels
-  zx.fillStyle='rgba(0,255,136,0.12)';
-  zx.font='11px Orbitron,monospace';
-  zx.textAlign='center';
-  zx.fillText('⬆ БОЛ', W/2, 22);
-  zx.fillText('⬇ ПОЁН', W/2, H-8);
-  zx.textAlign='left';
-  zx.fillText('⬅ ЧАП', 10, H/2+5);
-  zx.textAlign='right';
-  zx.fillText('РОСТ ➡', W-10, H/2+5);
-}
-
-// ======= GAME STATE =======
 let snake,dir,nextDir,food,score,level,speed,loop,alive;
 
 function init(){
   snake=[{x:14,y:11},{x:13,y:11},{x:12,y:11},{x:11,y:11}];
   dir={x:1,y:0}; nextDir={x:1,y:0};
-  score=0;level=1;speed=155;alive=true;
+  score=0;level=1;speed=150;alive=true;
   spawnFood();ui();draw();
 }
 function spawnFood(){
@@ -282,12 +179,12 @@ function ui(){
 }
 
 function draw(){
-  const s=+gCanvas.dataset.s||1, W=gCanvas.width, H=gCanvas.height;
-  gx.fillStyle='rgba(6,14,8,0.88)'; gx.fillRect(0,0,W,H);
+  const s=+gCanvas.dataset.s||1,W=gCanvas.width,H=gCanvas.height;
+  gx.fillStyle='rgba(6,14,8,0.9)'; gx.fillRect(0,0,W,H);
   gx.strokeStyle='rgba(0,255,136,0.04)'; gx.lineWidth=1;
   for(let x=0;x<COLS;x++)for(let y=0;y<ROWS;y++) gx.strokeRect(x*CELL*s,y*CELL*s,CELL*s,CELL*s);
 
-  const fx=food.x*CELL*s+CELL*s/2, fy=food.y*CELL*s+CELL*s/2;
+  const fx=food.x*CELL*s+CELL*s/2,fy=food.y*CELL*s+CELL*s/2;
   const pl=0.65+0.35*Math.sin(Date.now()/190);
   gx.save();
   const rg=gx.createRadialGradient(fx,fy,0,fx,fy,CELL*s*pl);
@@ -344,23 +241,18 @@ function startGame(){
   loop=setInterval(step,speed);
 }
 
-// Keyboard
 const KM={ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0},
           w:{x:0,y:-1},s:{x:0,y:1},a:{x:-1,y:0},d:{x:1,y:0}};
-document.addEventListener('keydown',e=>{const d=KM[e.key];if(!d)return;setDir(d);e.preventDefault();});
+document.addEventListener('keydown',e=>{const d=KM[e.key];if(!d)return;applyDir(d);e.preventDefault();});
 
-const aEls={up:document.getElementById('aU'),down:document.getElementById('aD'),
-            left:document.getElementById('aL'),right:document.getElementById('aR')};
-let aTimer=null;
-function setDir(d){
+const dirArrows={'-10':'⬆','01':'⬇','-10r':'⬆','10':'➡','-1_0':'⬅'};
+function applyDir(d){
   if(!alive)return;
   if(d.x===-dir.x&&dir.x!==0)return;
   if(d.y===-dir.y&&dir.y!==0)return;
   nextDir=d;
-  Object.values(aEls).forEach(a=>a.classList.remove('lit'));
-  const k=d.x===-1?'left':d.x===1?'right':d.y===-1?'up':'down';
-  aEls[k].classList.add('lit');
-  clearTimeout(aTimer);aTimer=setTimeout(()=>Object.values(aEls).forEach(a=>a.classList.remove('lit')),350);
+  const em=d.x===1?'➡':d.x===-1?'⬅':d.y===-1?'⬆':'⬇';
+  document.getElementById('dirShow').textContent=em;
 }
 
 // Particles
@@ -376,47 +268,51 @@ function boom(bx,by){
   }
 }
 (function animP(){
-  px.clearRect(0,0,pCanvas.width,pCanvas.height);
+  px2.clearRect(0,0,pCanvas.width,pCanvas.height);
   parts=parts.filter(p=>p.life>0);
   parts.forEach(p=>{
     p.x+=p.vx;p.y+=p.vy;p.vy+=.1;p.life-=.03;
-    px.save();px.globalAlpha=p.life;px.fillStyle=p.c;px.shadowColor=p.c;px.shadowBlur=10;
-    px.beginPath();px.arc(p.x,p.y,p.sz*p.life,0,Math.PI*2);px.fill();px.restore();
+    px2.save();px2.globalAlpha=p.life;px2.fillStyle=p.c;px2.shadowColor=p.c;px2.shadowBlur=10;
+    px2.beginPath();px2.arc(p.x,p.y,p.sz*p.life,0,Math.PI*2);px2.fill();px2.restore();
   });
   requestAnimationFrame(animP);
 })();
 
 // ======= HAND TRACKING =======
-// EXACTLY like the paint app:
-// Index fingertip (landmark 8) position on screen = cursor
-// Top of screen = UP, bottom = DOWN, left = LEFT, right = RIGHT
-// Simple 4-quadrant detection based on fingertip screen position
+// ПРИНСИП: Track MOVEMENT of fingertip — мисли барномаи расм
+// Позицияи қаблӣ vs позицияи ҳозира = вектори ҳаракат = самти мор
+// Агар чилик ба тарафи рост рафт → мор рост меравад
 
-function fingerScreenPos(lm, ws){
-  // landmark 8 = index fingertip
-  // x is mirrored because camera is flipped
-  const nx = 1 - lm[8].x; // normalized 0-1, mirrored
-  const ny = lm[8].y;      // normalized 0-1
-  return {
-    x: nx * ws.width,
-    y: ny * ws.height,
-    nx, ny
-  };
-}
+let prevX = null, prevY = null;
+const MOVE_THRESHOLD = 0.012; // чиликро камаш ин қадар ҳаракат кунад
 
-function posToDir(nx, ny){
-  // Which quadrant is the fingertip in?
-  const dx = nx - 0.5;
-  const dy = ny - 0.5;
-  const adx = Math.abs(dx);
-  const ady = Math.abs(dy);
-  // Need to be clearly off-center (deadzone)
-  if(adx < 0.1 && ady < 0.1) return null;
-  if(adx > ady){
-    return dx > 0 ? {x:1,y:0} : {x:-1,y:0};
-  } else {
-    return dy > 0 ? {x:0,y:1} : {x:0,y:-1};
+function processMovement(nx, ny, screenX, screenY){
+  const ftip = document.getElementById('ftip');
+  ftip.style.display = 'block';
+  ftip.style.left = screenX + 'px';
+  ftip.style.top  = screenY + 'px';
+
+  if(prevX !== null){
+    const dx = nx - prevX;  // чилик ба рост рафт = мусбат
+    const dy = ny - prevY;  // чилик поён рафт = мусбат
+    const adx = Math.abs(dx);
+    const ady = Math.abs(dy);
+
+    if(adx > MOVE_THRESHOLD || ady > MOVE_THRESHOLD){
+      let d;
+      if(adx > ady){
+        // Горизонтал ҳаракат
+        d = dx > 0 ? {x:1,y:0} : {x:-1,y:0};
+      } else {
+        // Вертикал ҳаракат
+        d = dy > 0 ? {x:0,y:1} : {x:0,y:-1};
+      }
+      applyDir(d);
+    }
   }
+
+  prevX = nx;
+  prevY = ny;
 }
 
 async function initCam(){
@@ -443,8 +339,7 @@ function loadMP(){
     s2.onload=setupMP; s2.onerror=mpFail;
     document.head.appendChild(s2);
   };
-  s1.onerror=mpFail;
-  document.head.appendChild(s1);
+  s1.onerror=mpFail; document.head.appendChild(s1);
 }
 function mpFail(){
   document.getElementById('dotTxt').textContent='КЛАВИАТУРА';
@@ -454,7 +349,6 @@ function mpFail(){
 
 function setupMP(){
   const vid=document.getElementById('vid');
-  const ftip=document.getElementById('ftip');
   const hands=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
   hands.setOptions({maxNumHands:1,modelComplexity:0,minDetectionConfidence:0.6,minTrackingConfidence:0.6});
 
@@ -463,23 +357,18 @@ function setupMP(){
     if(res.multiHandLandmarks && res.multiHandLandmarks.length>0){
       document.getElementById('dot').className='d on';
       document.getElementById('dotTxt').textContent='ДАСТ ✓';
-
       const lm=res.multiHandLandmarks[0];
-      const pos=fingerScreenPos(lm, ws);
-
-      // Show fingertip dot on screen - just like paint app cursor!
-      ftip.style.display='block';
-      ftip.style.left=pos.x+'px';
-      ftip.style.top=pos.y+'px';
-
-      // Direction from fingertip position
-      const d=posToDir(pos.nx, pos.ny);
-      if(d) setDir(d);
-
+      // Landmark 8 = index fingertip, mirror X
+      const nx = 1 - lm[8].x;
+      const ny = lm[8].y;
+      const sx = nx * ws.width;
+      const sy = ny * ws.height;
+      processMovement(nx, ny, sx, sy);
     } else {
       document.getElementById('dot').className='d';
       document.getElementById('dotTxt').textContent='ЧИЛИКРО НИШ ОН ДИҲ';
-      ftip.style.display='none';
+      document.getElementById('ftip').style.display='none';
+      prevX=null; prevY=null;
     }
   });
 
