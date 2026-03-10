@@ -11,17 +11,13 @@ body {
   background:#060e08;
   color:#00ff88;
   font-family:'Orbitron',monospace;
-  height:100vh;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
+  height:100vh; overflow:hidden;
+  display:flex; flex-direction:column;
 }
 .header {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  display:flex; align-items:center; justify-content:space-between;
   padding:10px 20px;
-  background:rgba(0,0,0,0.5);
+  background:rgba(0,0,0,0.6);
   border-bottom:1px solid rgba(0,255,136,0.15);
   flex-shrink:0;
 }
@@ -29,74 +25,99 @@ body {
 .stats { display:flex; gap:28px; }
 .stat-v { font-size:1.1rem; color:#00e5ff; text-shadow:0 0 10px #00e5ff; }
 .stat-l { font-size:0.45rem; color:rgba(0,255,136,0.4); letter-spacing:2px; margin-bottom:2px; }
-.hdot { display:flex; align-items:center; gap:8px; font-size:0.65rem; color:rgba(0,255,136,0.5); letter-spacing:1px; }
+.hdot { display:flex; align-items:center; gap:8px; font-size:0.65rem; color:rgba(0,255,136,0.5); }
 .d { width:8px;height:8px;border-radius:50%;background:#ff2d55;box-shadow:0 0 8px #ff2d55;transition:.3s; }
 .d.on { background:#00ff88;box-shadow:0 0 14px #00ff88;animation:bl 1s infinite; }
 @keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
 
 .workspace { flex:1; position:relative; overflow:hidden; }
 
-#gc { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2; }
-#pc { position:absolute; inset:0; pointer-events:none; z-index:5; }
-
-/* Camera small bottom-right */
+/* CAMERA FULL BACKGROUND - translucent, so user sees their hand */
 #vid {
-  position:absolute; bottom:12px; right:12px;
-  width:160px; height:110px;
-  object-fit:cover; transform:scaleX(-1);
-  border:1px solid rgba(0,255,136,0.3);
-  border-radius:8px; opacity:.7; z-index:10;
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  transform:scaleX(-1);
+  opacity:0.18;
+  z-index:1;
 }
 
-/* Big direction arrows shown on screen */
+#gc { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:3; }
+#pc { position:absolute; inset:0; pointer-events:none; z-index:6; }
+
+/* Fingertip cursor - shown on screen */
+#ftip {
+  position:absolute;
+  width:22px; height:22px;
+  border-radius:50%;
+  background:rgba(0,255,136,0.9);
+  box-shadow:0 0 20px #00ff88, 0 0 40px #00ff88;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  z-index:10;
+  display:none;
+  transition: left .05s linear, top .05s linear;
+}
+
+/* Zone dividers - cross lines on screen */
+#zones {
+  position:absolute; inset:0;
+  pointer-events:none; z-index:2;
+}
+
+/* Direction arrows - big, center screen */
 .arrows {
-  position:absolute; bottom:12px; right:184px;
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
   display:grid;
   grid-template-areas:". u ." "l . r" ". d .";
-  grid-template-columns:44px 44px 44px;
-  grid-template-rows:44px 44px 44px;
-  gap:4px;
-  z-index:10;
+  grid-template-columns:60px 60px 60px;
+  grid-template-rows:60px 60px 60px;
+  gap:4px; z-index:4;
+  pointer-events:none;
 }
 .arr {
   display:flex; align-items:center; justify-content:center;
-  font-size:1.3rem;
-  border:1px solid rgba(0,255,136,0.15);
-  border-radius:8px;
-  background:rgba(0,255,136,0.04);
-  transition:all .15s;
+  font-size:1.8rem;
+  border:1px solid rgba(0,255,136,0.1);
+  border-radius:10px;
+  background:rgba(0,255,136,0.03);
+  transition:all .12s;
+  color:rgba(0,255,136,0.25);
 }
 .arr.lit {
-  background:rgba(0,255,136,0.3);
+  background:rgba(0,255,136,0.25);
   border-color:#00ff88;
-  box-shadow:0 0 14px rgba(0,255,136,0.5);
-  transform:scale(1.15);
+  box-shadow:0 0 20px rgba(0,255,136,0.5);
+  transform:scale(1.25);
+  color:#00ff88;
 }
 #aU{grid-area:u} #aD{grid-area:d} #aL{grid-area:l} #aR{grid-area:r}
 
-/* Overlay */
+/* Overlay screens */
 .ov {
   position:absolute; inset:0;
   display:flex; flex-direction:column;
   align-items:center; justify-content:center;
   background:rgba(6,14,8,0.93);
-  z-index:50; gap:20px;
+  z-index:50; gap:18px;
   backdrop-filter:blur(5px);
 }
-.ov.off{display:none;}
-.ov-title { font-size:2.2rem; font-weight:900; letter-spacing:5px; text-shadow:0 0 30px currentColor; }
-.ov-sub { font-size:.8rem; color:rgba(0,255,136,.5); letter-spacing:1px; text-align:center; line-height:2; }
+.ov.off { display:none; }
+.ov-title { font-size:2rem; font-weight:900; letter-spacing:5px; text-shadow:0 0 30px currentColor; }
 
-/* Simple finger direction demo */
-.demo {
-  display:flex; gap:10px; align-items:center;
-  background:rgba(0,255,136,0.05);
+.guide {
+  display:flex; flex-direction:column; gap:10px; align-items:center;
+  background:rgba(0,255,136,0.04);
   border:1px solid rgba(0,255,136,0.15);
-  border-radius:12px;
-  padding:14px 22px;
-  font-size:1.4rem;
+  border-radius:14px; padding:20px 30px;
 }
-.demo-sep { color:rgba(0,255,136,.3); font-size:1.8rem; }
+.guide-row { display:flex; align-items:center; gap:14px; font-size:1rem; }
+.guide-em { font-size:1.6rem; }
+.guide-arr { font-size:1.4rem; color:rgba(0,255,136,.4); }
+.guide-txt { font-size:.7rem; color:rgba(0,255,136,.6); letter-spacing:1px; }
+
+.ov-sub { font-size:.75rem; color:rgba(0,255,136,.45); letter-spacing:1px; text-align:center; line-height:2; }
 
 .btn {
   padding:13px 48px; border:2px solid #00ff88;
@@ -105,7 +126,6 @@ body {
   font-weight:700; letter-spacing:3px; cursor:pointer; transition:.3s;
 }
 .btn:hover { background:#00ff88; color:#060e08; box-shadow:0 0 30px #00ff88; }
-
 .final { font-size:1.4rem; color:#ffd60a; text-shadow:0 0 20px #ffd60a; }
 </style>
 </head>
@@ -122,10 +142,20 @@ body {
 </div>
 
 <div class="workspace">
-  <canvas id="pc"></canvas>
-  <canvas id="gc"></canvas>
+  <!-- Camera as background -->
   <video id="vid" autoplay playsinline muted></video>
 
+  <!-- Zone lines -->
+  <canvas id="zones"></canvas>
+
+  <!-- Game -->
+  <canvas id="gc"></canvas>
+  <canvas id="pc"></canvas>
+
+  <!-- Fingertip dot -->
+  <div id="ftip"></div>
+
+  <!-- Direction arrows center -->
   <div class="arrows">
     <div class="arr" id="aU">↑</div>
     <div class="arr" id="aL">←</div>
@@ -133,21 +163,45 @@ body {
     <div class="arr" id="aD">↓</div>
   </div>
 
-  <!-- Start -->
+  <!-- START -->
   <div class="ov" id="ovS">
     <div class="ov-title" style="color:#00ff88">HAND SNAKE</div>
-    <div class="demo">
-      <span>☝️ БОЛ</span><span class="demo-sep">=</span><span>⬆️</span>
-      <span style="margin-left:14px">☝️ ПОЁН</span><span class="demo-sep">=</span><span>⬇️</span>
-      <span style="margin-left:14px">☝️ ЧАП</span><span class="demo-sep">=</span><span>⬅️</span>
-      <span style="margin-left:14px">☝️ РОСТ</span><span class="demo-sep">=</span><span>➡️</span>
+    <div class="guide">
+      <div class="guide-row">
+        <span class="guide-em">☝️</span>
+        <span class="guide-arr">⬆ БОЛО</span>
+        <span class="guide-arr">→</span>
+        <span class="guide-em">🐍</span>
+        <span class="guide-txt">МОР БОЛ МЕРАВАД</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-em">☝️</span>
+        <span class="guide-arr">⬇ ПОЁН</span>
+        <span class="guide-arr">→</span>
+        <span class="guide-em">🐍</span>
+        <span class="guide-txt">МОР ПОЁН МЕРАВАД</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-em">☝️</span>
+        <span class="guide-arr">⬅ ЧАП</span>
+        <span class="guide-arr">→</span>
+        <span class="guide-em">🐍</span>
+        <span class="guide-txt">МОР ЧАП МЕРАВАД</span>
+      </div>
+      <div class="guide-row">
+        <span class="guide-em">☝️</span>
+        <span class="guide-arr">➡ РОСТ</span>
+        <span class="guide-arr">→</span>
+        <span class="guide-em">🐍</span>
+        <span class="guide-txt">МОР РОСТ МЕРАВАД</span>
+      </div>
     </div>
-    <div class="ov-sub">Чиликро ба ҳамон тарафе, ки мехоҳед нишон диҳед!</div>
+    <div class="ov-sub">Чиликро ба тарафе мебаред — мор ба ҳамон тараф меравад<br>Мисли барномаи расм!</div>
     <button class="btn" onclick="startGame()">ОҒОЗ ▶</button>
     <div style="font-size:.6rem;color:rgba(0,255,136,.3);letter-spacing:2px">ARROW KEYS ҲАМ КОР МЕКУНАД</div>
   </div>
 
-  <!-- Over -->
+  <!-- GAME OVER -->
   <div class="ov off" id="ovO">
     <div class="ov-title" style="color:#ff2d55">ТАМОМ!</div>
     <div class="final" id="fS">ХОЛ: 0</div>
@@ -155,31 +209,58 @@ body {
     <button class="btn" style="border-color:#ff2d55;color:#ff2d55" onclick="startGame()">ДУБОРА ↺</button>
   </div>
 
-  <!-- Loading -->
+  <!-- LOADING -->
   <div class="ov" id="ovL">
     <div class="ov-title" style="color:#00e5ff;font-size:1.3rem">БОРИШ...</div>
-    <div class="ov-sub">Лаҳзае сабр кунед...</div>
+    <div class="ov-sub">Камера ва AI бор мешавад...</div>
   </div>
 </div>
 
 <script>
-// ======= SETUP =======
+// ======= GAME SETUP =======
 const CELL=20, COLS=28, ROWS=22;
 let hi=0;
 const gCanvas=document.getElementById('gc');
 const gx=gCanvas.getContext('2d');
 const pCanvas=document.getElementById('pc');
 const px=pCanvas.getContext('2d');
+const zCanvas=document.getElementById('zones');
+const zx=zCanvas.getContext('2d');
 
 function resize(){
   const ws=document.querySelector('.workspace');
-  const sc=Math.max(1,Math.min(~~(ws.clientWidth/(COLS*CELL)),~~(ws.clientHeight/(ROWS*CELL))));
+  const W=ws.clientWidth, H=ws.clientHeight;
+  const sc=Math.max(1,Math.min(~~(W/(COLS*CELL)),~~(H/(ROWS*CELL))));
   gCanvas.width=COLS*CELL*sc; gCanvas.height=ROWS*CELL*sc; gCanvas.dataset.s=sc;
-  pCanvas.width=ws.clientWidth; pCanvas.height=ws.clientHeight;
+  pCanvas.width=W; pCanvas.height=H;
+  zCanvas.width=W; zCanvas.height=H;
+  drawZones();
 }
 resize(); window.addEventListener('resize',resize);
 
-// ======= STATE =======
+function drawZones(){
+  const W=zCanvas.width, H=zCanvas.height;
+  zx.clearRect(0,0,W,H);
+  zx.strokeStyle='rgba(0,255,136,0.08)';
+  zx.lineWidth=1; zx.setLineDash([6,6]);
+  // Horizontal center
+  zx.beginPath(); zx.moveTo(0,H/2); zx.lineTo(W,H/2); zx.stroke();
+  // Vertical center
+  zx.beginPath(); zx.moveTo(W/2,0); zx.lineTo(W/2,H); zx.stroke();
+  zx.setLineDash([]);
+  // Zone labels
+  zx.fillStyle='rgba(0,255,136,0.12)';
+  zx.font='11px Orbitron,monospace';
+  zx.textAlign='center';
+  zx.fillText('⬆ БОЛ', W/2, 22);
+  zx.fillText('⬇ ПОЁН', W/2, H-8);
+  zx.textAlign='left';
+  zx.fillText('⬅ ЧАП', 10, H/2+5);
+  zx.textAlign='right';
+  zx.fillText('РОСТ ➡', W-10, H/2+5);
+}
+
+// ======= GAME STATE =======
 let snake,dir,nextDir,food,score,level,speed,loop,alive;
 
 function init(){
@@ -200,14 +281,12 @@ function ui(){
   document.getElementById('sL').textContent=level;
 }
 
-// ======= DRAW =======
 function draw(){
   const s=+gCanvas.dataset.s||1, W=gCanvas.width, H=gCanvas.height;
-  gx.fillStyle='#060e08'; gx.fillRect(0,0,W,H);
+  gx.fillStyle='rgba(6,14,8,0.88)'; gx.fillRect(0,0,W,H);
   gx.strokeStyle='rgba(0,255,136,0.04)'; gx.lineWidth=1;
   for(let x=0;x<COLS;x++)for(let y=0;y<ROWS;y++) gx.strokeRect(x*CELL*s,y*CELL*s,CELL*s,CELL*s);
 
-  // food
   const fx=food.x*CELL*s+CELL*s/2, fy=food.y*CELL*s+CELL*s/2;
   const pl=0.65+0.35*Math.sin(Date.now()/190);
   gx.save();
@@ -218,7 +297,6 @@ function draw(){
   gx.beginPath(); gx.arc(fx,fy,CELL*s*.38,0,Math.PI*2); gx.fill();
   gx.restore();
 
-  // snake
   snake.forEach((seg,i)=>{
     const x=seg.x*CELL*s,y=seg.y*CELL*s,sz=CELL*s,r=1-(i/snake.length)*.55;
     gx.save();
@@ -237,7 +315,6 @@ function draw(){
   });
 }
 
-// ======= STEP =======
 function step(){
   if(!alive)return;
   dir={...nextDir};
@@ -267,40 +344,34 @@ function startGame(){
   loop=setInterval(step,speed);
 }
 
-// ======= KEYBOARD =======
+// Keyboard
 const KM={ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0},
           w:{x:0,y:-1},s:{x:0,y:1},a:{x:-1,y:0},d:{x:1,y:0}};
-document.addEventListener('keydown',e=>{
-  const d=KM[e.key]; if(!d)return;
-  setDir(d); e.preventDefault();
-});
+document.addEventListener('keydown',e=>{const d=KM[e.key];if(!d)return;setDir(d);e.preventDefault();});
 
-// ======= SET DIRECTION =======
-const arrowEls={up:document.getElementById('aU'),down:document.getElementById('aD'),left:document.getElementById('aL'),right:document.getElementById('aR')};
-let arrowTimer=null;
-
+const aEls={up:document.getElementById('aU'),down:document.getElementById('aD'),
+            left:document.getElementById('aL'),right:document.getElementById('aR')};
+let aTimer=null;
 function setDir(d){
   if(!alive)return;
   if(d.x===-dir.x&&dir.x!==0)return;
   if(d.y===-dir.y&&dir.y!==0)return;
   nextDir=d;
-  // Light up arrow
-  Object.values(arrowEls).forEach(a=>a.classList.remove('lit'));
+  Object.values(aEls).forEach(a=>a.classList.remove('lit'));
   const k=d.x===-1?'left':d.x===1?'right':d.y===-1?'up':'down';
-  arrowEls[k].classList.add('lit');
-  clearTimeout(arrowTimer);
-  arrowTimer=setTimeout(()=>Object.values(arrowEls).forEach(a=>a.classList.remove('lit')),300);
+  aEls[k].classList.add('lit');
+  clearTimeout(aTimer);aTimer=setTimeout(()=>Object.values(aEls).forEach(a=>a.classList.remove('lit')),350);
 }
 
-// ======= PARTICLES =======
+// Particles
 let parts=[];
-function boom(gx2,gy2){
+function boom(bx,by){
   const ws=document.querySelector('.workspace').getBoundingClientRect();
   const s=+gCanvas.dataset.s||1;
-  const ox=(ws.width-gCanvas.width)/2, oy=(ws.height-gCanvas.height)/2;
-  const cx=ox+gx2*CELL*s+CELL*s/2, cy=oy+gy2*CELL*s+CELL*s/2;
+  const ox=(ws.width-gCanvas.width)/2,oy=(ws.height-gCanvas.height)/2;
+  const cx=ox+bx*CELL*s+CELL*s/2,cy=oy+by*CELL*s+CELL*s/2;
   for(let i=0;i<16;i++){
-    const a=(Math.PI*2/16)*i, sp=2+Math.random()*5;
+    const a=(Math.PI*2/16)*i,sp=2+Math.random()*5;
     parts.push({x:cx,y:cy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1,c:i%2?'#00ff88':'#ffd60a',sz:3+Math.random()*4});
   }
 }
@@ -316,35 +387,41 @@ function boom(gx2,gy2){
 })();
 
 // ======= HAND TRACKING =======
-// Simple & reliable: look at where index finger TIP is pointing
-// Compare fingertip to finger BASE — the vector = direction of pointing
-// This is the most intuitive: point finger up → go up
+// EXACTLY like the paint app:
+// Index fingertip (landmark 8) position on screen = cursor
+// Top of screen = UP, bottom = DOWN, left = LEFT, right = RIGHT
+// Simple 4-quadrant detection based on fingertip screen position
 
-function getPointDir(lm){
-  // Index: tip=8, pip=6 (middle joint) — direction tip→pip = pointing direction
-  const tip = lm[8];  // fingertip
-  const pip = lm[5];  // index base knuckle
+function fingerScreenPos(lm, ws){
+  // landmark 8 = index fingertip
+  // x is mirrored because camera is flipped
+  const nx = 1 - lm[8].x; // normalized 0-1, mirrored
+  const ny = lm[8].y;      // normalized 0-1
+  return {
+    x: nx * ws.width,
+    y: ny * ws.height,
+    nx, ny
+  };
+}
 
-  const dx = tip.x - pip.x; // positive = pointing right (but mirrored, so flip)
-  const dy = tip.y - pip.y; // negative = pointing up
-
-  const adx=Math.abs(dx), ady=Math.abs(dy);
-  const threshold=0.04;
-
-  if(adx<threshold && ady<threshold) return null; // not clearly pointing
-
-  if(ady>adx){
-    // Vertical pointing
-    return dy<0 ? {x:0,y:-1} : {x:0,y:1};
+function posToDir(nx, ny){
+  // Which quadrant is the fingertip in?
+  const dx = nx - 0.5;
+  const dy = ny - 0.5;
+  const adx = Math.abs(dx);
+  const ady = Math.abs(dy);
+  // Need to be clearly off-center (deadzone)
+  if(adx < 0.1 && ady < 0.1) return null;
+  if(adx > ady){
+    return dx > 0 ? {x:1,y:0} : {x:-1,y:0};
   } else {
-    // Horizontal pointing — flip because camera is mirrored
-    return dx<0 ? {x:1,y:0} : {x:-1,y:0};
+    return dy > 0 ? {x:0,y:1} : {x:0,y:-1};
   }
 }
 
 async function initCam(){
   try{
-    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:320,height:240}});
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480}});
     document.getElementById('vid').srcObject=stream;
     await document.getElementById('vid').play();
     loadMP();
@@ -369,7 +446,6 @@ function loadMP(){
   s1.onerror=mpFail;
   document.head.appendChild(s1);
 }
-
 function mpFail(){
   document.getElementById('dotTxt').textContent='КЛАВИАТУРА';
   document.getElementById('ovL').classList.add('off');
@@ -378,22 +454,36 @@ function mpFail(){
 
 function setupMP(){
   const vid=document.getElementById('vid');
+  const ftip=document.getElementById('ftip');
   const hands=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
   hands.setOptions({maxNumHands:1,modelComplexity:0,minDetectionConfidence:0.6,minTrackingConfidence:0.6});
 
   hands.onResults(res=>{
+    const ws=document.querySelector('.workspace').getBoundingClientRect();
     if(res.multiHandLandmarks && res.multiHandLandmarks.length>0){
       document.getElementById('dot').className='d on';
       document.getElementById('dotTxt').textContent='ДАСТ ✓';
-      const d=getPointDir(res.multiHandLandmarks[0]);
+
+      const lm=res.multiHandLandmarks[0];
+      const pos=fingerScreenPos(lm, ws);
+
+      // Show fingertip dot on screen - just like paint app cursor!
+      ftip.style.display='block';
+      ftip.style.left=pos.x+'px';
+      ftip.style.top=pos.y+'px';
+
+      // Direction from fingertip position
+      const d=posToDir(pos.nx, pos.ny);
       if(d) setDir(d);
+
     } else {
       document.getElementById('dot').className='d';
       document.getElementById('dotTxt').textContent='ЧИЛИКРО НИШ ОН ДИҲ';
+      ftip.style.display='none';
     }
   });
 
-  const cam=new Camera(vid,{onFrame:async()=>{await hands.send({image:vid});},width:320,height:240});
+  const cam=new Camera(vid,{onFrame:async()=>{await hands.send({image:vid});},width:640,height:480});
   cam.start();
   document.getElementById('ovL').classList.add('off');
   document.getElementById('ovS').classList.remove('off');
