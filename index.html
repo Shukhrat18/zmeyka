@@ -3,106 +3,347 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🐍 HAND SNAKE</title>
+<title>🐍 Hand Snake</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+:root {
+  --p1: #6c63ff;
+  --p2: #48cfad;
+  --p3: #4fc3f7;
+  --bg: #0f1623;
+  --bg2: #161f30;
+  --card: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.1);
+  --text: #e8edf5;
+  --sub: rgba(232,237,245,0.5);
+}
+
 * { margin:0; padding:0; box-sizing:border-box; }
+
 body {
-  background:#060e08; color:#00ff88;
-  font-family:'Orbitron',monospace;
-  height:100vh; overflow:hidden;
-  display:flex; flex-direction:column;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
+
+/* Animated background blobs */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(108,99,255,0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(72,207,173,0.1) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 60% 30%, rgba(79,195,247,0.08) 0%, transparent 70%);
+  pointer-events:none; z-index:0;
+  animation: blobMove 12s ease-in-out infinite alternate;
+}
+@keyframes blobMove {
+  0%   { filter: blur(0px); }
+  100% { filter: blur(2px); transform: scale(1.03); }
+}
+
+/* ===== HEADER ===== */
 .header {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:10px 20px; background:rgba(0,0,0,0.6);
-  border-bottom:1px solid rgba(0,255,136,0.15); flex-shrink:0;
+  position: relative; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  height: 64px;
+  background: rgba(15,22,35,0.8);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  flex-shrink: 0;
 }
-.logo { font-size:1.1rem; font-weight:900; letter-spacing:4px; text-shadow:0 0 15px #00ff88; }
-.stats { display:flex; gap:28px; }
-.stat-v { font-size:1.1rem; color:#00e5ff; text-shadow:0 0 10px #00e5ff; }
-.stat-l { font-size:0.45rem; color:rgba(0,255,136,0.4); letter-spacing:2px; margin-bottom:2px; }
-.hdot { display:flex; align-items:center; gap:8px; font-size:0.65rem; color:rgba(0,255,136,0.5); }
-.d { width:8px;height:8px;border-radius:50%;background:#ff2d55;box-shadow:0 0 8px #ff2d55;transition:.3s; }
-.d.on { background:#00ff88;box-shadow:0 0 14px #00ff88;animation:bl 1s infinite; }
-@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
 
-.workspace { flex:1; position:relative; overflow:hidden; }
+.logo {
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--p1), var(--p2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 15px rgba(108,99,255,0.4);
+}
+.logo-text {
+  font-weight: 900; font-size: 1.15rem; letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
 
-/* Camera full background */
+.stats {
+  display: flex; gap: 12px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 6px 18px;
+  text-align: center;
+  min-width: 80px;
+}
+.stat-l {
+  font-size: 0.55rem; font-weight: 700;
+  color: var(--sub); letter-spacing: 1.5px; text-transform: uppercase;
+}
+.stat-v {
+  font-size: 1.1rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--p1), var(--p3));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.cam-status {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+}
+.cam-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  transition: all .3s;
+}
+.cam-dot.on {
+  background: var(--p2);
+  box-shadow: 0 0 12px var(--p2);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.cam-txt {
+  font-size: 0.7rem; font-weight: 700; color: var(--sub); letter-spacing: 0.5px;
+}
+
+/* ===== WORKSPACE ===== */
+.workspace {
+  flex: 1; position: relative; overflow: hidden; z-index: 1;
+}
+
 #vid {
-  position:absolute; inset:0; width:100%; height:100%;
-  object-fit:cover; transform:scaleX(-1); opacity:0.2; z-index:1;
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  opacity: 0.1;
+  z-index: 1;
 }
 
-/* Game canvas - NO GRID, smooth */
 #gc {
-  position:absolute; inset:0; width:100%; height:100%; z-index:3;
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 3;
 }
 
-/* Overlays */
+/* ===== OVERLAY SCREENS ===== */
 .ov {
-  position:absolute; inset:0; display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  background:rgba(6,14,8,0.93); z-index:50; gap:18px;
-  backdrop-filter:blur(5px);
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 50; gap: 20px;
+  background: rgba(10,15,25,0.88);
+  backdrop-filter: blur(16px);
 }
-.ov.off { display:none; }
-.ov-title { font-size:2rem; font-weight:900; letter-spacing:5px; text-shadow:0 0 30px currentColor; }
-.guide {
-  background:rgba(0,255,136,0.05); border:1px solid rgba(0,255,136,0.15);
-  border-radius:14px; padding:20px 32px; text-align:center;
-  font-size:.75rem; color:rgba(0,255,136,.6); letter-spacing:1px; line-height:2.2;
+.ov.off { display: none; }
+
+.ov-logo {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 4px;
 }
-.guide .big { font-size:2.5rem; margin-bottom:8px; }
-.btn {
-  padding:13px 48px; border:2px solid #00ff88; background:transparent; color:#00ff88;
-  font-family:'Orbitron',monospace; font-size:.9rem; font-weight:700; letter-spacing:3px; cursor:pointer; transition:.3s;
+.ov-logo-icon {
+  width: 56px; height: 56px; border-radius: 18px;
+  background: linear-gradient(135deg, var(--p1), var(--p2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: 0 8px 30px rgba(108,99,255,0.5);
+  animation: floatIcon 3s ease-in-out infinite;
 }
-.btn:hover { background:#00ff88; color:#060e08; box-shadow:0 0 30px #00ff88; }
-.final { font-size:1.4rem; color:#ffd60a; text-shadow:0 0 20px #ffd60a; }
+@keyframes floatIcon {
+  0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)}
+}
+.ov-title {
+  font-size: 2rem; font-weight: 900; letter-spacing: 1px;
+  background: linear-gradient(135deg, #fff, rgba(255,255,255,0.7));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.ov-sub {
+  font-size: 0.75rem; color: var(--sub); letter-spacing: 0.5px;
+}
+
+/* Guide card */
+.guide-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px 32px;
+  text-align: center;
+  max-width: 380px;
+}
+.guide-emoji {
+  font-size: 3rem; margin-bottom: 10px;
+  display: block;
+  animation: floatIcon 2s ease-in-out infinite;
+}
+.guide-title {
+  font-size: 1rem; font-weight: 800; color: #fff; margin-bottom: 8px;
+}
+.guide-desc {
+  font-size: 0.78rem; color: var(--sub); line-height: 2; font-weight: 600;
+}
+.guide-desc span {
+  color: #fff;
+  background: linear-gradient(135deg, var(--p1), var(--p2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+/* Buttons */
+.btn-main {
+  padding: 14px 52px;
+  background: linear-gradient(135deg, var(--p1), var(--p2));
+  border: none; border-radius: 14px;
+  color: #fff; font-family: 'Nunito', sans-serif;
+  font-size: 1rem; font-weight: 900; letter-spacing: 1px;
+  cursor: pointer; transition: all .3s;
+  box-shadow: 0 6px 24px rgba(108,99,255,0.4);
+}
+.btn-main:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(108,99,255,0.6);
+}
+.btn-main:active { transform: translateY(0); }
+
+.btn-red {
+  padding: 14px 52px;
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  border: none; border-radius: 14px;
+  color: #fff; font-family: 'Nunito', sans-serif;
+  font-size: 1rem; font-weight: 900; letter-spacing: 1px;
+  cursor: pointer; transition: all .3s;
+  box-shadow: 0 6px 24px rgba(239,68,68,0.35);
+}
+.btn-red:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(239,68,68,0.5); }
+
+/* Game over score */
+.score-big {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 18px 48px;
+  text-align: center;
+}
+.score-big .lbl { font-size: 0.6rem; color: var(--sub); letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
+.score-big .val {
+  font-size: 2.8rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--p1), var(--p2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.record-badge {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: white; border-radius: 20px;
+  padding: 6px 20px; font-size: .8rem; font-weight: 800;
+  display: none;
+  animation: popIn .4s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes popIn { 0%{transform:scale(0)} 100%{transform:scale(1)} }
+
+/* Loading spinner */
+.spinner {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 3px solid rgba(108,99,255,0.2);
+  border-top-color: var(--p1);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="header">
-  <div class="logo">🐍 HAND SNAKE</div>
-  <div class="stats">
-    <div class="stat"><div class="stat-l">ХОЛ</div><div class="stat-v" id="sS">0</div></div>
-    <div class="stat"><div class="stat-l">РЕКОРД</div><div class="stat-v" id="sH">0</div></div>
+  <div class="logo">
+    <div class="logo-icon">🐍</div>
+    <div class="logo-text">Hand Snake</div>
   </div>
-  <div class="hdot"><div class="d" id="dot"></div><span id="dotTxt">КАМЕРА...</span></div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-l">Холҳо</div>
+      <div class="stat-v" id="sS">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-l">Рекорд</div>
+      <div class="stat-v" id="sH">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-l">Дарозӣ</div>
+      <div class="stat-v" id="sL">8</div>
+    </div>
+  </div>
+
+  <div class="cam-status">
+    <div class="cam-dot" id="dot"></div>
+    <span class="cam-txt" id="dotTxt">Камера...</span>
+  </div>
 </div>
 
+<!-- WORKSPACE -->
 <div class="workspace">
   <video id="vid" autoplay playsinline muted></video>
   <canvas id="gc"></canvas>
 
-  <!-- START -->
+  <!-- START SCREEN -->
   <div class="ov" id="ovS">
-    <div class="ov-title" style="color:#00ff88">🐍 HAND SNAKE</div>
-    <div class="guide">
-      <div class="big">☝️ = 🐍</div>
-      МОР ДАР НӮГ ЧИЛИК АСТ<br>
-      ЧИЛИК ҲАРАКАТ КАРД → МОР ҲАРАКАТ КАРД<br>
-      ЧИЛИК ИСТОД → МОР ИСТОД<br>
-      ЧИЛИК ТОБ ДОД → МОР ТОБ МЕХӮРАД
+    <div class="ov-logo">
+      <div class="ov-logo-icon">🐍</div>
+      <div>
+        <div class="ov-title">Hand Snake</div>
+        <div class="ov-sub">Бозии мор бо дасти шумо</div>
+      </div>
     </div>
-    <button class="btn" onclick="startGame()">ОҒОЗ ▶</button>
+
+    <div class="guide-card">
+      <span class="guide-emoji">☝️</span>
+      <div class="guide-title">Чилик = Сари Мор</div>
+      <div class="guide-desc">
+        <span>Чилик ҳаракат кард</span> — мор ҳаракат кард<br>
+        <span>Чилик истод</span> — мор истод<br>
+        <span>Чилик тоб дод</span> — мор тоб мехӯрад<br>
+        Мор тамоми <span>ғизоҳоро</span> бихӯрад!
+      </div>
+    </div>
+
+    <button class="btn-main" onclick="startGame()">▶ Оғоз кардан</button>
+    <div style="font-size:.65rem;color:var(--sub)">Барои камера иҷозат диҳед</div>
   </div>
 
-  <!-- OVER -->
+  <!-- GAME OVER -->
   <div class="ov off" id="ovO">
-    <div class="ov-title" style="color:#ff2d55">ТАМОМ!</div>
-    <div class="final" id="fS">ХОЛ: 0</div>
-    <div style="color:#ffd60a;display:none" id="nR">🏆 РЕКОРДИ НАВ!</div>
-    <button class="btn" style="border-color:#ff2d55;color:#ff2d55" onclick="startGame()">ДУБОРА ↺</button>
+    <div class="ov-logo">
+      <div class="ov-logo-icon" style="background:linear-gradient(135deg,#ef4444,#f97316)">💀</div>
+      <div>
+        <div class="ov-title">Бозӣ Тамом!</div>
+        <div class="ov-sub">Натиҷаи шумо</div>
+      </div>
+    </div>
+
+    <div class="score-big">
+      <div class="lbl">Холҳои гирифта</div>
+      <div class="val" id="fS">0</div>
+    </div>
+
+    <div class="record-badge" id="nR">🏆 Рекорди нав!</div>
+
+    <button class="btn-red" onclick="startGame()">↺ Дубора бозӣ</button>
   </div>
 
   <!-- LOADING -->
   <div class="ov" id="ovL">
-    <div class="ov-title" style="color:#00e5ff;font-size:1.3rem">БОРИШ...</div>
-    <div style="font-size:.7rem;color:rgba(0,229,255,.5)">Лаҳзае сабр кунед...</div>
+    <div class="spinner"></div>
+    <div style="font-size:.9rem;font-weight:700;color:var(--sub)">Камера бор мешавад...</div>
   </div>
 </div>
 
@@ -119,32 +360,28 @@ function resize(){
 resize();
 window.addEventListener('resize', resize);
 
-// ======= SNAKE STATE =======
-const SEG_DIST = 12;   // distance between each segment
-const SEG_RADIUS = 8;  // size of each segment
-const FOOD_RADIUS = 10;
+const SEG_DIST = 12;
+const SEG_RADIUS = 9;
+const FOOD_RADIUS = 11;
 const INIT_LENGTH = 8;
 
-let segments = [];   // [{x,y}]
+let segments = [];
 let foods = [];
 let score = 0, hi = 0;
 let alive = false;
-let fingerX = null, fingerY = null; // current fingertip position
+let fingerX = null, fingerY = null;
 let gameRunning = false;
+let particles = [];
 
 function initSnake(){
   segments = [];
-  const startX = W / 2;
-  const startY = H / 2;
   for(let i = 0; i < INIT_LENGTH; i++){
-    segments.push({ x: startX - i * SEG_DIST, y: startY });
+    segments.push({ x: W/2 - i*SEG_DIST, y: H/2 });
   }
-  score = 0;
-  alive = true;
-  fingerX = null;
-  fingerY = null;
-  spawnFoods();
-  ui();
+  score = 0; alive = true;
+  fingerX = null; fingerY = null;
+  particles = [];
+  spawnFoods(); ui();
 }
 
 function spawnFoods(){
@@ -154,303 +391,286 @@ function spawnFoods(){
 
 function spawnOneFood(){
   foods.push({
-    x: 40 + Math.random() * (W - 80),
-    y: 40 + Math.random() * (H - 80),
-    pulse: Math.random() * Math.PI * 2
+    x: 50 + Math.random()*(W-100),
+    y: 50 + Math.random()*(H-100),
+    pulse: Math.random()*Math.PI*2,
+    color: ['#6c63ff','#48cfad','#4fc3f7','#f59e0b','#f472b6'][~~(Math.random()*5)]
   });
 }
 
 function ui(){
   document.getElementById('sS').textContent = score;
   document.getElementById('sH').textContent = hi;
+  document.getElementById('sL').textContent = segments.length;
 }
 
-// ======= UPDATE =======
+// Particles on eat
+function spawnParticles(x, y, color){
+  for(let i=0;i<18;i++){
+    const a=(Math.PI*2/18)*i, sp=2+Math.random()*5;
+    particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1,color,sz:3+Math.random()*4});
+  }
+}
+
+function updateParticles(){
+  particles = particles.filter(p=>p.life>0);
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.1; p.life-=0.03;
+  });
+}
+
+function drawParticles(){
+  particles.forEach(p=>{
+    ctx.save();
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.sz*p.life, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
 function update(){
   if(!alive || !gameRunning) return;
 
-  // If finger detected, move head toward finger
   if(fingerX !== null && fingerY !== null){
-    // HEAD = FINGERTIP DIRECTLY. Мор доимо дар нӯги чилик!
     segments[0] = { x: fingerX, y: fingerY };
   }
-  // If no finger - snake stays still
 
-  // Update body segments to follow head
-  for(let i = 1; i < segments.length; i++){
+  for(let i=1; i<segments.length; i++){
     const prev = segments[i-1];
     const curr = segments[i];
     const dx = prev.x - curr.x;
     const dy = prev.y - curr.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
+    const dist = Math.sqrt(dx*dx+dy*dy);
     if(dist > SEG_DIST){
-      const ratio = (dist - SEG_DIST) / dist;
-      segments[i] = {
-        x: curr.x + dx * ratio,
-        y: curr.y + dy * ratio
-      };
+      const r = (dist-SEG_DIST)/dist;
+      segments[i] = { x: curr.x+dx*r, y: curr.y+dy*r };
     }
   }
 
-  // Check wall collision
   const head = segments[0];
-  if(head.x < 0 || head.x > W || head.y < 0 || head.y > H){
-    gameOver();
-    return;
+
+  // Wall
+  if(head.x<0||head.x>W||head.y<0||head.y>H){ gameOver(); return; }
+
+  // Self
+  for(let i=10; i<segments.length; i++){
+    const s=segments[i];
+    if(Math.hypot(head.x-s.x, head.y-s.y) < SEG_RADIUS*1.5){ gameOver(); return; }
   }
 
-  // Check self collision (skip first 10 segments)
-  for(let i = 10; i < segments.length; i++){
-    const s = segments[i];
-    const dx = head.x - s.x;
-    const dy = head.y - s.y;
-    if(Math.sqrt(dx*dx + dy*dy) < SEG_RADIUS * 1.5){
-      gameOver();
-      return;
-    }
-  }
-
-  // Check food
-  for(let i = foods.length - 1; i >= 0; i--){
-    const f = foods[i];
-    const dx = head.x - f.x;
-    const dy = head.y - f.y;
-    if(Math.sqrt(dx*dx + dy*dy) < SEG_RADIUS + FOOD_RADIUS){
-      // Eat!
+  // Food
+  for(let i=foods.length-1; i>=0; i--){
+    const f=foods[i];
+    if(Math.hypot(head.x-f.x, head.y-f.y) < SEG_RADIUS+FOOD_RADIUS){
       score += 10;
-      if(score > hi) hi = score;
-      ui();
-      foods.splice(i, 1);
+      if(score>hi) hi=score;
+      spawnParticles(f.x, f.y, f.color);
+      foods.splice(i,1);
       spawnOneFood();
-      // Grow snake - add segments at tail
-      for(let g = 0; g < 5; g++){
-        const tail = segments[segments.length-1];
-        segments.push({...tail});
-      }
+      for(let g=0;g<6;g++) segments.push({...segments[segments.length-1]});
+      ui();
     }
   }
+
+  updateParticles();
 }
 
-// ======= DRAW =======
 function draw(){
-  ctx.clearRect(0, 0, W, H);
-
+  ctx.clearRect(0,0,W,H);
   if(!gameRunning) return;
 
-  // Draw food
-  foods.forEach(f => {
+  drawParticles();
+
+  // Food
+  foods.forEach(f=>{
     f.pulse += 0.05;
-    const r = FOOD_RADIUS * (0.8 + 0.2 * Math.sin(f.pulse));
+    const r = FOOD_RADIUS*(0.85+0.15*Math.sin(f.pulse));
     ctx.save();
-    const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, r * 2.5);
-    grad.addColorStop(0, 'rgba(255,45,85,0.9)');
-    grad.addColorStop(1, 'rgba(255,45,85,0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath(); ctx.arc(f.x, f.y, r * 2.5, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#ff2d55';
-    ctx.shadowColor = '#ff2d55'; ctx.shadowBlur = 15;
-    ctx.beginPath(); ctx.arc(f.x, f.y, r, 0, Math.PI*2); ctx.fill();
+    // outer glow
+    const g1 = ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,r*3);
+    g1.addColorStop(0, f.color+'55');
+    g1.addColorStop(1, f.color+'00');
+    ctx.fillStyle=g1;
+    ctx.beginPath(); ctx.arc(f.x,f.y,r*3,0,Math.PI*2); ctx.fill();
+    // main dot
+    ctx.fillStyle=f.color;
+    ctx.shadowColor=f.color; ctx.shadowBlur=20;
+    ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.fill();
+    // white center
+    ctx.fillStyle='rgba(255,255,255,0.7)';
+    ctx.shadowBlur=0;
+    ctx.beginPath(); ctx.arc(f.x,f.y,r*0.35,0,Math.PI*2); ctx.fill();
     ctx.restore();
   });
 
-  // Draw snake body
-  if(segments.length < 2) return;
+  if(segments.length<2) return;
 
-  // Draw as smooth path
   ctx.save();
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
+  ctx.lineCap='round'; ctx.lineJoin='round';
 
-  // Body glow
-  for(let pass = 0; pass < 2; pass++){
-    ctx.beginPath();
-    ctx.moveTo(segments[0].x, segments[0].y);
-    for(let i = 1; i < segments.length; i++){
-      // Smooth curve through segments
-      if(i < segments.length - 1){
-        const mx = (segments[i].x + segments[i+1].x) / 2;
-        const my = (segments[i].y + segments[i+1].y) / 2;
-        ctx.quadraticCurveTo(segments[i].x, segments[i].y, mx, my);
-      } else {
-        ctx.lineTo(segments[i].x, segments[i].y);
-      }
-    }
-
-    if(pass === 0){
-      // Glow pass
-      ctx.strokeStyle = 'rgba(0,255,136,0.2)';
-      ctx.lineWidth = SEG_RADIUS * 2 + 6;
-      ctx.shadowColor = '#00ff88';
-      ctx.shadowBlur = 20;
-    } else {
-      // Main body
-      const grad = ctx.createLinearGradient(
-        segments[0].x, segments[0].y,
-        segments[segments.length-1].x, segments[segments.length-1].y
-      );
-      grad.addColorStop(0, '#00ff88');
-      grad.addColorStop(1, '#004422');
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = SEG_RADIUS * 2;
-      ctx.shadowColor = '#00ff88';
-      ctx.shadowBlur = 8;
-    }
-    ctx.stroke();
-  }
-
-  // Draw head (circle)
-  const head = segments[0];
+  // Outer glow
   ctx.beginPath();
-  ctx.arc(head.x, head.y, SEG_RADIUS + 2, 0, Math.PI*2);
-  ctx.fillStyle = '#00ff88';
-  ctx.shadowColor = '#00ff88';
-  ctx.shadowBlur = 20;
-  ctx.fill();
+  ctx.moveTo(segments[0].x, segments[0].y);
+  for(let i=1;i<segments.length;i++){
+    if(i<segments.length-1){
+      const mx=(segments[i].x+segments[i+1].x)/2;
+      const my=(segments[i].y+segments[i+1].y)/2;
+      ctx.quadraticCurveTo(segments[i].x,segments[i].y,mx,my);
+    } else ctx.lineTo(segments[i].x,segments[i].y);
+  }
+  ctx.strokeStyle='rgba(108,99,255,0.15)';
+  ctx.lineWidth=SEG_RADIUS*2+10;
+  ctx.shadowColor='#6c63ff'; ctx.shadowBlur=30;
+  ctx.stroke();
 
-  // Eyes on head
-  if(segments.length > 1){
-    const dx = segments[0].x - segments[1].x;
-    const dy = segments[0].y - segments[1].y;
-    const angle = Math.atan2(dy, dx);
-    const eyeR = SEG_RADIUS * 0.35;
-    const eyeDist = SEG_RADIUS * 0.5;
-    const ex1 = head.x + Math.cos(angle + 0.7) * eyeDist;
-    const ey1 = head.y + Math.sin(angle + 0.7) * eyeDist;
-    const ex2 = head.x + Math.cos(angle - 0.7) * eyeDist;
-    const ey2 = head.y + Math.sin(angle - 0.7) * eyeDist;
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = '#001a08';
-    ctx.beginPath(); ctx.arc(ex1, ey1, eyeR, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(ex2, ey2, eyeR, 0, Math.PI*2); ctx.fill();
-    // Pupils (white dot)
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath(); ctx.arc(ex1 + Math.cos(angle)*1, ey1 + Math.sin(angle)*1, eyeR*0.4, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(ex2 + Math.cos(angle)*1, ey2 + Math.sin(angle)*1, eyeR*0.4, 0, Math.PI*2); ctx.fill();
+  // Body gradient
+  ctx.beginPath();
+  ctx.moveTo(segments[0].x, segments[0].y);
+  for(let i=1;i<segments.length;i++){
+    if(i<segments.length-1){
+      const mx=(segments[i].x+segments[i+1].x)/2;
+      const my=(segments[i].y+segments[i+1].y)/2;
+      ctx.quadraticCurveTo(segments[i].x,segments[i].y,mx,my);
+    } else ctx.lineTo(segments[i].x,segments[i].y);
+  }
+  const bodyGrad = ctx.createLinearGradient(
+    segments[0].x, segments[0].y,
+    segments[~~(segments.length*0.6)].x, segments[~~(segments.length*0.6)].y
+  );
+  bodyGrad.addColorStop(0,'#6c63ff');
+  bodyGrad.addColorStop(0.4,'#48cfad');
+  bodyGrad.addColorStop(1,'#1a3a2a');
+  ctx.strokeStyle=bodyGrad;
+  ctx.lineWidth=SEG_RADIUS*2;
+  ctx.shadowColor='#6c63ff'; ctx.shadowBlur=12;
+  ctx.stroke();
+
+  // Head circle
+  const head=segments[0];
+  const hg=ctx.createRadialGradient(head.x-SEG_RADIUS*0.3,head.y-SEG_RADIUS*0.3,0,head.x,head.y,SEG_RADIUS+3);
+  hg.addColorStop(0,'#a78bfa');
+  hg.addColorStop(1,'#6c63ff');
+  ctx.beginPath(); ctx.arc(head.x,head.y,SEG_RADIUS+3,0,Math.PI*2);
+  ctx.fillStyle=hg; ctx.shadowColor='#6c63ff'; ctx.shadowBlur=25; ctx.fill();
+
+  // Eyes
+  if(segments.length>1){
+    const dx=segments[0].x-segments[1].x;
+    const dy=segments[0].y-segments[1].y;
+    const angle=Math.atan2(dy,dx);
+    const eyeR=SEG_RADIUS*0.33;
+    const eyeD=SEG_RADIUS*0.55;
+    [[angle+0.65],[angle-0.65]].forEach(([a])=>{
+      const ex=head.x+Math.cos(a)*eyeD;
+      const ey=head.y+Math.sin(a)*eyeD;
+      ctx.shadowBlur=0;
+      ctx.fillStyle='white';
+      ctx.beginPath(); ctx.arc(ex,ey,eyeR,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#1a0a3a';
+      ctx.beginPath(); ctx.arc(ex+Math.cos(angle)*eyeR*0.4,ey+Math.sin(angle)*eyeR*0.4,eyeR*0.55,0,Math.PI*2); ctx.fill();
+    });
   }
 
-  // Fingertip indicator ring
-  if(fingerX !== null){
-    ctx.beginPath();
-    ctx.arc(fingerX, fingerY, 14, 0, Math.PI*2);
-    ctx.strokeStyle = 'rgba(0,255,136,0.5)';
-    ctx.lineWidth = 2;
-    ctx.shadowColor = '#00ff88';
-    ctx.shadowBlur = 10;
-    ctx.stroke();
-    ctx.setLineDash([]);
+  // Fingertip ring
+  if(fingerX!==null){
+    ctx.shadowBlur=0;
+    ctx.beginPath(); ctx.arc(fingerX,fingerY,18,0,Math.PI*2);
+    ctx.strokeStyle='rgba(108,99,255,0.6)';
+    ctx.lineWidth=2.5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(fingerX,fingerY,6,0,Math.PI*2);
+    ctx.fillStyle='rgba(108,99,255,0.8)'; ctx.fill();
   }
 
   ctx.restore();
 }
 
 function gameOver(){
-  alive = false;
-  gameRunning = false;
-  if(score > hi) hi = score;
+  alive=false; gameRunning=false;
+  if(score>hi) hi=score;
   ui();
-  document.getElementById('fS').textContent = 'ХОЛ: ' + score;
-  document.getElementById('nR').style.display = score >= hi && score > 0 ? 'block' : 'none';
+  document.getElementById('fS').textContent=score;
+  const isRec = score>0 && score>=hi;
+  document.getElementById('nR').style.display=isRec?'block':'none';
   document.getElementById('ovO').classList.remove('off');
 }
 
 function startGame(){
   document.getElementById('ovS').classList.add('off');
   document.getElementById('ovO').classList.add('off');
-  gameRunning = true;
-  initSnake();
+  gameRunning=true; initSnake();
 }
 
-// ======= GAME LOOP =======
-let lastTime = 0;
+let lastTime=0;
 function gameLoop(ts){
-  const dt = ts - lastTime;
-  lastTime = ts;
-  if(dt < 100){ // skip big gaps
-    update();
-    draw();
-  }
+  const dt=ts-lastTime; lastTime=ts;
+  if(dt<100){ update(); draw(); }
   requestAnimationFrame(gameLoop);
 }
 requestAnimationFrame(gameLoop);
 
-// ======= MEDIAPIPE =======
+// ===== MEDIAPIPE =====
 async function initCam(){
   try{
-    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480}});
-    document.getElementById('vid').srcObject = stream;
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480}});
+    document.getElementById('vid').srcObject=stream;
     await document.getElementById('vid').play();
     loadMP();
   }catch(e){
-    document.getElementById('dotTxt').textContent = 'КАМЕРА ЙЎҚ';
+    document.getElementById('dotTxt').textContent='Камера нест';
     document.getElementById('ovL').classList.add('off');
     document.getElementById('ovS').classList.remove('off');
   }
 }
 
 function loadMP(){
-  const s1 = document.createElement('script');
-  s1.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
-  s1.crossOrigin = 'anonymous';
-  s1.onload = () => {
-    const s2 = document.createElement('script');
-    s2.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
-    s2.crossOrigin = 'anonymous';
-    s2.onload = setupMP;
-    s2.onerror = mpFail;
+  const s1=document.createElement('script');
+  s1.src='https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
+  s1.crossOrigin='anonymous';
+  s1.onload=()=>{
+    const s2=document.createElement('script');
+    s2.src='https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
+    s2.crossOrigin='anonymous';
+    s2.onload=setupMP; s2.onerror=mpFail;
     document.head.appendChild(s2);
   };
-  s1.onerror = mpFail;
-  document.head.appendChild(s1);
+  s1.onerror=mpFail; document.head.appendChild(s1);
 }
 
 function mpFail(){
-  document.getElementById('dotTxt').textContent = 'КАМЕРА ЙЎҚ';
+  document.getElementById('dotTxt').textContent='Клавиатура';
   document.getElementById('ovL').classList.add('off');
   document.getElementById('ovS').classList.remove('off');
 }
 
 function setupMP(){
-  const vid = document.getElementById('vid');
-  const hands = new Hands({locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
-  hands.setOptions({
-    maxNumHands:1,
-    modelComplexity:0,
-    minDetectionConfidence:0.65,
-    minTrackingConfidence:0.65
-  });
-
-  hands.onResults(res => {
-    if(res.multiHandLandmarks && res.multiHandLandmarks.length > 0){
-      document.getElementById('dot').className = 'd on';
-      document.getElementById('dotTxt').textContent = 'ДАСТ ✓';
-
-      const lm = res.multiHandLandmarks[0];
-      // Index fingertip = landmark 8, mirror X
-      const nx = 1 - lm[8].x;
-      const ny = lm[8].y;
-
-      // Convert to screen coords
-      fingerX = nx * W;
-      fingerY = ny * H;
+  const vid=document.getElementById('vid');
+  const hands=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
+  hands.setOptions({maxNumHands:1,modelComplexity:0,minDetectionConfidence:0.65,minTrackingConfidence:0.65});
+  hands.onResults(res=>{
+    if(res.multiHandLandmarks&&res.multiHandLandmarks.length>0){
+      document.getElementById('dot').className='cam-dot on';
+      document.getElementById('dotTxt').textContent='Даст ёфта шуд ✓';
+      const lm=res.multiHandLandmarks[0];
+      fingerX=(1-lm[8].x)*W;
+      fingerY=lm[8].y*H;
     } else {
-      document.getElementById('dot').className = 'd';
-      document.getElementById('dotTxt').textContent = 'ЧИЛИКРО НИШ ОН ДИҲ';
-      fingerX = null;
-      fingerY = null;
+      document.getElementById('dot').className='cam-dot';
+      document.getElementById('dotTxt').textContent='Чиликро нишон диҳ';
+      fingerX=null; fingerY=null;
     }
   });
-
-  const cam = new Camera(vid, {
-    onFrame: async () => { await hands.send({image: vid}); },
-    width:640, height:480
-  });
+  const cam=new Camera(vid,{onFrame:async()=>{await hands.send({image:vid});},width:640,height:480});
   cam.start();
-
   document.getElementById('ovL').classList.add('off');
   document.getElementById('ovS').classList.remove('off');
 }
 
-window.addEventListener('load', () => setTimeout(initCam, 500));
+window.addEventListener('load',()=>setTimeout(initCam,500));
 </script>
 </body>
 </html>
