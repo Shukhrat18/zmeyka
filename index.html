@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐍 HAND SNAKE</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#060e08;
+  color:#00ff88;
+  font-family:'Orbitron',monospace;
+  height:100vh;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 20px;
+  background:rgba(0,0,0,0.5);
+  border-bottom:1px solid rgba(0,255,136,0.15);
+  flex-shrink:0;
+}
+.logo { font-size:1.1rem; font-weight:900; letter-spacing:4px; text-shadow:0 0 15px #00ff88; }
+.stats { display:flex; gap:28px; }
+.stat-v { font-size:1.1rem; color:#00e5ff; text-shadow:0 0 10px #00e5ff; }
+.stat-l { font-size:0.45rem; color:rgba(0,255,136,0.4); letter-spacing:2px; margin-bottom:2px; }
+.hdot { display:flex; align-items:center; gap:8px; font-size:0.65rem; color:rgba(0,255,136,0.5); letter-spacing:1px; }
+.d { width:8px;height:8px;border-radius:50%;background:#ff2d55;box-shadow:0 0 8px #ff2d55;transition:.3s; }
+.d.on { background:#00ff88;box-shadow:0 0 14px #00ff88;animation:bl 1s infinite; }
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+
+.workspace { flex:1; position:relative; overflow:hidden; }
+
+#gc { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2; }
+#pc { position:absolute; inset:0; pointer-events:none; z-index:5; }
+
+/* Camera small bottom-right */
+#vid {
+  position:absolute; bottom:12px; right:12px;
+  width:160px; height:110px;
+  object-fit:cover; transform:scaleX(-1);
+  border:1px solid rgba(0,255,136,0.3);
+  border-radius:8px; opacity:.7; z-index:10;
+}
+
+/* Big direction arrows shown on screen */
+.arrows {
+  position:absolute; bottom:12px; right:184px;
+  display:grid;
+  grid-template-areas:". u ." "l . r" ". d .";
+  grid-template-columns:44px 44px 44px;
+  grid-template-rows:44px 44px 44px;
+  gap:4px;
+  z-index:10;
+}
+.arr {
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.3rem;
+  border:1px solid rgba(0,255,136,0.15);
+  border-radius:8px;
+  background:rgba(0,255,136,0.04);
+  transition:all .15s;
+}
+.arr.lit {
+  background:rgba(0,255,136,0.3);
+  border-color:#00ff88;
+  box-shadow:0 0 14px rgba(0,255,136,0.5);
+  transform:scale(1.15);
+}
+#aU{grid-area:u} #aD{grid-area:d} #aL{grid-area:l} #aR{grid-area:r}
+
+/* Overlay */
+.ov {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  background:rgba(6,14,8,0.93);
+  z-index:50; gap:20px;
+  backdrop-filter:blur(5px);
+}
+.ov.off{display:none;}
+.ov-title { font-size:2.2rem; font-weight:900; letter-spacing:5px; text-shadow:0 0 30px currentColor; }
+.ov-sub { font-size:.8rem; color:rgba(0,255,136,.5); letter-spacing:1px; text-align:center; line-height:2; }
+
+/* Simple finger direction demo */
+.demo {
+  display:flex; gap:10px; align-items:center;
+  background:rgba(0,255,136,0.05);
+  border:1px solid rgba(0,255,136,0.15);
+  border-radius:12px;
+  padding:14px 22px;
+  font-size:1.4rem;
+}
+.demo-sep { color:rgba(0,255,136,.3); font-size:1.8rem; }
+
+.btn {
+  padding:13px 48px; border:2px solid #00ff88;
+  background:transparent; color:#00ff88;
+  font-family:'Orbitron',monospace; font-size:.9rem;
+  font-weight:700; letter-spacing:3px; cursor:pointer; transition:.3s;
+}
+.btn:hover { background:#00ff88; color:#060e08; box-shadow:0 0 30px #00ff88; }
+
+.final { font-size:1.4rem; color:#ffd60a; text-shadow:0 0 20px #ffd60a; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">🐍 HAND SNAKE</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-l">ХОЛ</div><div class="stat-v" id="sS">000</div></div>
+    <div class="stat"><div class="stat-l">РЕКОРД</div><div class="stat-v" id="sH">000</div></div>
+    <div class="stat"><div class="stat-l">ДАРАҶА</div><div class="stat-v" id="sL">1</div></div>
+  </div>
+  <div class="hdot"><div class="d" id="dot"></div><span id="dotTxt">КАМЕРА...</span></div>
+</div>
+
+<div class="workspace">
+  <canvas id="pc"></canvas>
+  <canvas id="gc"></canvas>
+  <video id="vid" autoplay playsinline muted></video>
+
+  <div class="arrows">
+    <div class="arr" id="aU">↑</div>
+    <div class="arr" id="aL">←</div>
+    <div class="arr" id="aR">→</div>
+    <div class="arr" id="aD">↓</div>
+  </div>
+
+  <!-- Start -->
+  <div class="ov" id="ovS">
+    <div class="ov-title" style="color:#00ff88">HAND SNAKE</div>
+    <div class="demo">
+      <span>☝️ БОЛ</span><span class="demo-sep">=</span><span>⬆️</span>
+      <span style="margin-left:14px">☝️ ПОЁН</span><span class="demo-sep">=</span><span>⬇️</span>
+      <span style="margin-left:14px">☝️ ЧАП</span><span class="demo-sep">=</span><span>⬅️</span>
+      <span style="margin-left:14px">☝️ РОСТ</span><span class="demo-sep">=</span><span>➡️</span>
+    </div>
+    <div class="ov-sub">Чиликро ба ҳамон тарафе, ки мехоҳед нишон диҳед!</div>
+    <button class="btn" onclick="startGame()">ОҒОЗ ▶</button>
+    <div style="font-size:.6rem;color:rgba(0,255,136,.3);letter-spacing:2px">ARROW KEYS ҲАМ КОР МЕКУНАД</div>
+  </div>
+
+  <!-- Over -->
+  <div class="ov off" id="ovO">
+    <div class="ov-title" style="color:#ff2d55">ТАМОМ!</div>
+    <div class="final" id="fS">ХОЛ: 0</div>
+    <div style="color:#ffd60a;display:none" id="nR">🏆 РЕКОРДИ НАВ!</div>
+    <button class="btn" style="border-color:#ff2d55;color:#ff2d55" onclick="startGame()">ДУБОРА ↺</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="ov" id="ovL">
+    <div class="ov-title" style="color:#00e5ff;font-size:1.3rem">БОРИШ...</div>
+    <div class="ov-sub">Лаҳзае сабр кунед...</div>
+  </div>
+</div>
+
+<script>
+// ======= SETUP =======
+const CELL=20, COLS=28, ROWS=22;
+let hi=0;
+const gCanvas=document.getElementById('gc');
+const gx=gCanvas.getContext('2d');
+const pCanvas=document.getElementById('pc');
+const px=pCanvas.getContext('2d');
+
+function resize(){
+  const ws=document.querySelector('.workspace');
+  const sc=Math.max(1,Math.min(~~(ws.clientWidth/(COLS*CELL)),~~(ws.clientHeight/(ROWS*CELL))));
+  gCanvas.width=COLS*CELL*sc; gCanvas.height=ROWS*CELL*sc; gCanvas.dataset.s=sc;
+  pCanvas.width=ws.clientWidth; pCanvas.height=ws.clientHeight;
+}
+resize(); window.addEventListener('resize',resize);
+
+// ======= STATE =======
+let snake,dir,nextDir,food,score,level,speed,loop,alive;
+
+function init(){
+  snake=[{x:14,y:11},{x:13,y:11},{x:12,y:11},{x:11,y:11}];
+  dir={x:1,y:0}; nextDir={x:1,y:0};
+  score=0;level=1;speed=155;alive=true;
+  spawnFood();ui();draw();
+}
+function spawnFood(){
+  let p;
+  do{p={x:~~(Math.random()*COLS),y:~~(Math.random()*ROWS)};}
+  while(snake.some(s=>s.x===p.x&&s.y===p.y));
+  food=p;
+}
+function ui(){
+  document.getElementById('sS').textContent=String(score).padStart(3,'0');
+  document.getElementById('sH').textContent=String(hi).padStart(3,'0');
+  document.getElementById('sL').textContent=level;
+}
+
+// ======= DRAW =======
+function draw(){
+  const s=+gCanvas.dataset.s||1, W=gCanvas.width, H=gCanvas.height;
+  gx.fillStyle='#060e08'; gx.fillRect(0,0,W,H);
+  gx.strokeStyle='rgba(0,255,136,0.04)'; gx.lineWidth=1;
+  for(let x=0;x<COLS;x++)for(let y=0;y<ROWS;y++) gx.strokeRect(x*CELL*s,y*CELL*s,CELL*s,CELL*s);
+
+  // food
+  const fx=food.x*CELL*s+CELL*s/2, fy=food.y*CELL*s+CELL*s/2;
+  const pl=0.65+0.35*Math.sin(Date.now()/190);
+  gx.save();
+  const rg=gx.createRadialGradient(fx,fy,0,fx,fy,CELL*s*pl);
+  rg.addColorStop(0,'rgba(255,45,85,.95)'); rg.addColorStop(1,'rgba(255,45,85,0)');
+  gx.fillStyle=rg; gx.beginPath(); gx.arc(fx,fy,CELL*s*pl,0,Math.PI*2); gx.fill();
+  gx.fillStyle='#ff2d55'; gx.shadowColor='#ff2d55'; gx.shadowBlur=16*s;
+  gx.beginPath(); gx.arc(fx,fy,CELL*s*.38,0,Math.PI*2); gx.fill();
+  gx.restore();
+
+  // snake
+  snake.forEach((seg,i)=>{
+    const x=seg.x*CELL*s,y=seg.y*CELL*s,sz=CELL*s,r=1-(i/snake.length)*.55;
+    gx.save();
+    if(i===0){gx.fillStyle='#00ff88';gx.shadowColor='#00ff88';gx.shadowBlur=18*s;}
+    else{const v=~~(75+r*145);gx.fillStyle=`rgb(0,${v},${~~(v*.3)})`;gx.shadowColor='#00ff88';gx.shadowBlur=6*s*r;}
+    const p=i===0?1:2; gx.fillRect(x+p,y+p,sz-p*2,sz-p*2);
+    if(i===0){
+      gx.fillStyle='#002a0e'; gx.shadowBlur=0;
+      const ew=sz*.15,eh=sz*.2;
+      if(dir.x===1){gx.fillRect(x+sz*.62,y+sz*.2,ew,eh);gx.fillRect(x+sz*.62,y+sz*.62,ew,eh);}
+      else if(dir.x===-1){gx.fillRect(x+sz*.23,y+sz*.2,ew,eh);gx.fillRect(x+sz*.23,y+sz*.62,ew,eh);}
+      else if(dir.y===-1){gx.fillRect(x+sz*.2,y+sz*.23,eh,ew);gx.fillRect(x+sz*.62,y+sz*.23,eh,ew);}
+      else{gx.fillRect(x+sz*.2,y+sz*.62,eh,ew);gx.fillRect(x+sz*.62,y+sz*.62,eh,ew);}
+    }
+    gx.restore();
+  });
+}
+
+// ======= STEP =======
+function step(){
+  if(!alive)return;
+  dir={...nextDir};
+  const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+  if(h.x<0||h.x>=COLS||h.y<0||h.y>=ROWS||snake.some(s=>s.x===h.x&&s.y===h.y)){over();return;}
+  snake.unshift(h);
+  if(h.x===food.x&&h.y===food.y){
+    score+=10*level; boom(food.x,food.y); spawnFood();
+    if(score>=level*100){level++;speed=Math.max(65,speed-15);clearInterval(loop);loop=setInterval(step,speed);}
+    ui();
+  } else snake.pop();
+  draw();
+}
+
+function over(){
+  alive=false; clearInterval(loop);
+  const rec=score>hi; if(rec)hi=score; ui();
+  document.getElementById('fS').textContent='ХОЛ: '+score;
+  document.getElementById('nR').style.display=rec?'block':'none';
+  document.getElementById('ovO').classList.remove('off');
+}
+
+function startGame(){
+  document.getElementById('ovS').classList.add('off');
+  document.getElementById('ovO').classList.add('off');
+  clearInterval(loop); init();
+  loop=setInterval(step,speed);
+}
+
+// ======= KEYBOARD =======
+const KM={ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0},
+          w:{x:0,y:-1},s:{x:0,y:1},a:{x:-1,y:0},d:{x:1,y:0}};
+document.addEventListener('keydown',e=>{
+  const d=KM[e.key]; if(!d)return;
+  setDir(d); e.preventDefault();
+});
+
+// ======= SET DIRECTION =======
+const arrowEls={up:document.getElementById('aU'),down:document.getElementById('aD'),left:document.getElementById('aL'),right:document.getElementById('aR')};
+let arrowTimer=null;
+
+function setDir(d){
+  if(!alive)return;
+  if(d.x===-dir.x&&dir.x!==0)return;
+  if(d.y===-dir.y&&dir.y!==0)return;
+  nextDir=d;
+  // Light up arrow
+  Object.values(arrowEls).forEach(a=>a.classList.remove('lit'));
+  const k=d.x===-1?'left':d.x===1?'right':d.y===-1?'up':'down';
+  arrowEls[k].classList.add('lit');
+  clearTimeout(arrowTimer);
+  arrowTimer=setTimeout(()=>Object.values(arrowEls).forEach(a=>a.classList.remove('lit')),300);
+}
+
+// ======= PARTICLES =======
+let parts=[];
+function boom(gx2,gy2){
+  const ws=document.querySelector('.workspace').getBoundingClientRect();
+  const s=+gCanvas.dataset.s||1;
+  const ox=(ws.width-gCanvas.width)/2, oy=(ws.height-gCanvas.height)/2;
+  const cx=ox+gx2*CELL*s+CELL*s/2, cy=oy+gy2*CELL*s+CELL*s/2;
+  for(let i=0;i<16;i++){
+    const a=(Math.PI*2/16)*i, sp=2+Math.random()*5;
+    parts.push({x:cx,y:cy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1,c:i%2?'#00ff88':'#ffd60a',sz:3+Math.random()*4});
+  }
+}
+(function animP(){
+  px.clearRect(0,0,pCanvas.width,pCanvas.height);
+  parts=parts.filter(p=>p.life>0);
+  parts.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;p.vy+=.1;p.life-=.03;
+    px.save();px.globalAlpha=p.life;px.fillStyle=p.c;px.shadowColor=p.c;px.shadowBlur=10;
+    px.beginPath();px.arc(p.x,p.y,p.sz*p.life,0,Math.PI*2);px.fill();px.restore();
+  });
+  requestAnimationFrame(animP);
+})();
+
+// ======= HAND TRACKING =======
+// Simple & reliable: look at where index finger TIP is pointing
+// Compare fingertip to finger BASE — the vector = direction of pointing
+// This is the most intuitive: point finger up → go up
+
+function getPointDir(lm){
+  // Index: tip=8, pip=6 (middle joint) — direction tip→pip = pointing direction
+  const tip = lm[8];  // fingertip
+  const pip = lm[5];  // index base knuckle
+
+  const dx = tip.x - pip.x; // positive = pointing right (but mirrored, so flip)
+  const dy = tip.y - pip.y; // negative = pointing up
+
+  const adx=Math.abs(dx), ady=Math.abs(dy);
+  const threshold=0.04;
+
+  if(adx<threshold && ady<threshold) return null; // not clearly pointing
+
+  if(ady>adx){
+    // Vertical pointing
+    return dy<0 ? {x:0,y:-1} : {x:0,y:1};
+  } else {
+    // Horizontal pointing — flip because camera is mirrored
+    return dx<0 ? {x:1,y:0} : {x:-1,y:0};
+  }
+}
+
+async function initCam(){
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:320,height:240}});
+    document.getElementById('vid').srcObject=stream;
+    await document.getElementById('vid').play();
+    loadMP();
+  }catch(e){
+    document.getElementById('dotTxt').textContent='КЛАВИАТУРА';
+    document.getElementById('ovL').classList.add('off');
+    document.getElementById('ovS').classList.remove('off');
+  }
+}
+
+function loadMP(){
+  const s1=document.createElement('script');
+  s1.src='https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
+  s1.crossOrigin='anonymous';
+  s1.onload=()=>{
+    const s2=document.createElement('script');
+    s2.src='https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
+    s2.crossOrigin='anonymous';
+    s2.onload=setupMP; s2.onerror=mpFail;
+    document.head.appendChild(s2);
+  };
+  s1.onerror=mpFail;
+  document.head.appendChild(s1);
+}
+
+function mpFail(){
+  document.getElementById('dotTxt').textContent='КЛАВИАТУРА';
+  document.getElementById('ovL').classList.add('off');
+  document.getElementById('ovS').classList.remove('off');
+}
+
+function setupMP(){
+  const vid=document.getElementById('vid');
+  const hands=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
+  hands.setOptions({maxNumHands:1,modelComplexity:0,minDetectionConfidence:0.6,minTrackingConfidence:0.6});
+
+  hands.onResults(res=>{
+    if(res.multiHandLandmarks && res.multiHandLandmarks.length>0){
+      document.getElementById('dot').className='d on';
+      document.getElementById('dotTxt').textContent='ДАСТ ✓';
+      const d=getPointDir(res.multiHandLandmarks[0]);
+      if(d) setDir(d);
+    } else {
+      document.getElementById('dot').className='d';
+      document.getElementById('dotTxt').textContent='ЧИЛИКРО НИШ ОН ДИҲ';
+    }
+  });
+
+  const cam=new Camera(vid,{onFrame:async()=>{await hands.send({image:vid});},width:320,height:240});
+  cam.start();
+  document.getElementById('ovL').classList.add('off');
+  document.getElementById('ovS').classList.remove('off');
+}
+
+window.addEventListener('load',()=>setTimeout(initCam,500));
+</script>
+</body>
+</html>
